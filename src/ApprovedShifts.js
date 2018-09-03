@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { Loader, Menu } from 'semantic-ui-react';
+import { Loader, Menu, Icon } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import ShiftsByDay from './ShiftsByDay';
 // import DayByDayReport from './ApprovalQueue';
 
 function getStartOfPreviousWeek(weekStartsOn) {
@@ -15,11 +16,11 @@ function getStartOfPreviousWeek(weekStartsOn) {
 }
 
 class ApprovedShifts extends Component {
-  state = {  }
   constructor(props) {
     console.log('ApprovedShifts constructed');
     super(props);
     this.state = {
+      shifts: [],
       startDate: getStartOfPreviousWeek(props.account.weekStartsOn)
     };
   }
@@ -43,7 +44,7 @@ class ApprovedShifts extends Component {
     this.setState({ startDate: date });
     this.loadShifts();
   }
-  
+
   render() { 
     const { weekStartsOn } = this.props.account;
     const { loading, startDate, shifts } = this.state;
@@ -63,8 +64,9 @@ class ApprovedShifts extends Component {
               customInput={<a href='#select-start-date'>{moment(startDate).format('dddd, D MMMM YYYY')}</a>} 
             />
             </Menu.Item>
+            <Menu.Item position='right' onClick={this.loadShifts}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
-        {/* <DayByDayReport shifts={shifts} /> */}
+        <ShiftsByDay shifts={shifts} />
       </div>
     );
   }

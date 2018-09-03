@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import ApprovalQueueDay from './ApprovalQueueDay';
-import { Menu, Loader } from 'semantic-ui-react';
+import { Icon, Menu, Loader } from 'semantic-ui-react';
 
 class ApprovalQueue extends Component {
   state = {
@@ -11,6 +11,10 @@ class ApprovalQueue extends Component {
 
   componentDidMount() {
     console.log('ApprovalQueue did mount');
+    this.loadData();
+  }
+
+  loadData = () => {
     this.setState({ loading: true });
     this.props.db.collection('shifts').where('isApproved', '==', false).get().then(snapshot => {
       const shifts = [];
@@ -59,9 +63,10 @@ class ApprovalQueue extends Component {
         <Loader active={loading} content='Loading approval queue' />
         <Menu secondary>
           <Menu.Item header>Approval Queue</Menu.Item>
+          <Menu.Item position='right' onClick={this.loadData}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
         {datestamps().map(datestamp => (
-          <ApprovalQueueDay key={datestamp} date={moment(datestamp).toDate()} shifts={filterShifts(datestamp)} />
+          <ApprovalQueueDay key={datestamp} db={this.props.db} onReload={this.loadData} date={moment(datestamp).toDate()} shifts={filterShifts(datestamp)} />
         ))}
       </div>
     )

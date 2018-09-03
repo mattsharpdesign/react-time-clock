@@ -25,7 +25,7 @@ class TimeClock extends Component {
         <Loader active={loading} content='Loading employees' />
         <Menu secondary>
           <Menu.Item header>TimeClock</Menu.Item>
-          <Menu.Item onClick={this.loadEmployees}><Icon name='refresh' /> Reload</Menu.Item>
+          <Menu.Item position='right' onClick={this.loadEmployees}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
         <ul>
           {employees.map(e => (

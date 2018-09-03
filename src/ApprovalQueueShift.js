@@ -23,10 +23,10 @@ class ApprovalQueueShift extends Component {
   handleChangeUnpaidMinutes = event => this.setState({ unpaidMinutes: event.target.value });
   
   updateShift = () => {
-    const { user, shift } = this.props;
+    const { shift } = this.props;
     const { comment, unpaidMinutes } = this.state;
     this.setState({ saving: true });
-    db.collection('accounts').doc(user.account).collection('shifts').doc(shift.id).update({
+    this.props.db.collection('shifts').doc(shift.id).update({
       supervisorComment: comment,
       unpaidMinutes: unpaidMinutes,
     }).then(() => {

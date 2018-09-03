@@ -34,22 +34,28 @@ class ApprovalQueueDay extends Component {
 
   approveSelected = () => {
     console.log(this.state.checkedShifts);
-    const { user } = this.props;
+    const batch = db.batch();
     const { checkedShifts } = this.state;
-    this.setState({ loading: true });
     checkedShifts.forEach(id => {
-      db.collection('accounts').doc(user.account).collection('shifts').doc(id).update({
-        isApproved: true
-      }).then(() => {
-        this.toggleChecked(id);
-        this.setState({ loading: false });
-      });
+      batch.update(this.props.db.collection('shifts').doc(id), { isApproved: true });
+      // this.setState({ loading: true });
+      // this.props.db.collection('shifts').doc(id).update({
+      //   isApproved: true
+      // }).then(() => {
+      //   this.toggleChecked(id);
+      //   this.setState({ loading: false });
+      // });
+    });
+    this.setState({ loading: true });
+    batch.commit().then(() => {
+      this.setState({ loading: false, checkedShifts: [] });
+      this.props.onReload();
     });
   }
 
   render() { 
     const { date, shifts } = this.props;
-    const { checkedShifts } = this.state;
+    const { checkedShifts, loading } = this.state;
     return (
       <Segment>
         <Header>{moment(date).format('ddd, D MMM YY')}</Header>
@@ -67,11 +73,13 @@ class ApprovalQueueDay extends Component {
           </Table.Header>
           <Table.Body>
             {this.getEmployees().map(employee => (
-              <ApprovalQueueEmployee key={employee.id} user={this.props.user} employee={employee} shifts={shifts.filter(s => s.employee.id === employee.id)} toggleChecked={this.toggleChecked} />
+              <ApprovalQueueEmployee key={employee.id} db={this.props.db} user={this.props.user} employee={employee} shifts={shifts.filter(s => s.employee.id === employee.id)} toggleChecked={this.toggleChecked} />
             ))}
           </Table.Body>
         </Table>
-        <Button positive={checkedShifts.length > 0} disabled={checkedShifts.length < 1} onClick={this.approveSelected}>Approve Selected</Button>
+        <Button positive={checkedShifts.length > 0} disabled={checkedShifts.length < 1} loading={loading} onClick={this.approveSelected}>
+          Approve Selected
+        </Button>
       </Segment>
     );
   }

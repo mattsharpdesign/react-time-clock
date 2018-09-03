@@ -5,10 +5,11 @@ import Employees from './Employees';
 // import UnfinishedShifts from './UnfinishedShifts';
 import ApprovalQueue from './ApprovalQueue';
 import moment from 'moment';
-import { Container, Loader, Menu } from 'semantic-ui-react';
+import { Container, Loader, Menu, Popup, List } from 'semantic-ui-react';
 import ApprovedShifts from './ApprovedShifts';
-import { BrowserRouter as Router, NavLink, Route, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Link, NavLink, Route, Switch, Redirect } from 'react-router-dom';
 import TimeClock from './TimeClock';
+import Settings from './Settings';
 
 function getIntBetween(min, max) {
   return Math.floor(Math.random()*(max-min+1)+min);
@@ -175,22 +176,11 @@ class App extends Component {
       date.add(1, 'days');
     }
     console.log(shifts);
-    // this.setState({ approvalQueue: shifts });
     const { user } = this.state;
     const shiftsRef = db.collection('accounts').doc(user.account).collection('shifts');
     shifts.forEach(shift => {
       shiftsRef.add(shift);
     });
-  }
-
-  setWeeklyReportStartDate = date => {
-    console.log(date);
-    this.setState({ weeklyReportStartDate: date });
-    this.loadWeeklyReport(this.state.user.account, date.toDate())
-  }
-
-  filterWeeklyReportStartDate = date => {
-    return date.day() === this.state.accountSettings.weekStartsOn;
   }
 
   render() {
@@ -202,20 +192,30 @@ class App extends Component {
     return (
       <Router>
         <div>
-          <Menu>
+          <Menu stackable>
             <Menu.Item header>TimeKeeper</Menu.Item>
             <Menu.Item as={NavLink} to='/' exact>Home</Menu.Item>
+            <Menu.Item as={NavLink} to='/current-shifts'>Current Shifts</Menu.Item>
             <Menu.Item as={NavLink} to='/approval-queue'>Approval Queue</Menu.Item>
             <Menu.Item as={NavLink} to='/approved-shifts'>Approved Shifts</Menu.Item>
             <Menu.Item as={NavLink} to='/employees'>Employees</Menu.Item>
-            <Menu.Item position='right'>{auth.currentUser.email}</Menu.Item>
+            <Popup 
+              on='click' 
+              trigger={<Menu.Item position='right'>{auth.currentUser.email}</Menu.Item>} 
+            >
+              <List relaxed='very'>
+                <List.Item as={Link} to='/settings'>Settings</List.Item>
+                <List.Item as='a' onClick={this.signOut}>Sign out</List.Item>
+              </List>
+            </Popup>
           </Menu>
           <Container>
             <Switch>
-              <Route exact path='/' render={() => <TimeClock db={dbRef} />} />
+              <Route path='/' exact render={() => <TimeClock db={dbRef} />} />
               <Route path='/approval-queue' render={() => <ApprovalQueue db={dbRef} />} />
               <Route path='/approved-shifts' render={() => <ApprovedShifts db={dbRef} account={account} />} />
               <Route path='/employees' render={() => <Employees db={dbRef} />} />
+              <Route path='/settings' render={() => <Settings account={account} />} />
               <Redirect to='/' />
             </Switch>
           </Container>

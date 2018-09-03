@@ -30,7 +30,6 @@ class Employees extends Component {
 
   render() { 
     const { employees, loading } = this.state;
-    if (loading) return <Loader active content='Loading employees' />
     return (
       <div>
         <Loader active={loading} content='Loading employees' />
