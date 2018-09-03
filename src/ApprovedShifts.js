@@ -12,7 +12,7 @@ function getStartOfPreviousWeek(weekStartsOn) {
   while (date.day() !== weekStartsOn) {
     date.subtract(1, 'days');
   }
-  return date.toDate();
+  return date.startOf('day').toDate();
 }
 
 class ApprovedShifts extends Component {
@@ -24,6 +24,7 @@ class ApprovedShifts extends Component {
       startDate: getStartOfPreviousWeek(props.account.weekStartsOn)
     };
   }
+
   componentDidMount() { 
     console.log('ApprovedShifts did mount')
     this.loadShifts();
@@ -32,17 +33,23 @@ class ApprovedShifts extends Component {
   loadShifts = () => {
     this.setState({ loading: true });
     const shifts = [];
-    this.props.db.collection('shifts').where('isApproved', '==', true).get().then(snapshot => {
-      snapshot.docs.forEach(doc => {
-        shifts.push({ ...doc.data(), id: doc.id });
+    let startDate = moment(this.state.startDate).startOf('day').toDate();
+    let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
+    console.log('Loading shifts starting at', startDate, 'ending at', endDate);
+    this.props.db.collection('shifts')
+      .where('isApproved', '==', true)
+      .where('start.timestamp', '>=', startDate)
+      .where('start.timestamp', '<=', endDate)
+      .get().then(snapshot => {
+        snapshot.docs.forEach(doc => {
+          shifts.push({ ...doc.data(), id: doc.id });
+        });
+        this.setState({ shifts, loading: false });
       });
-      this.setState({ shifts, loading: false });
-    });
   }
 
   setStartDate = date => {
-    this.setState({ startDate: date });
-    this.loadShifts();
+    this.setState({ startDate: date }, this.loadShifts);
   }
 
   render() { 

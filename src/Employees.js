@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ClockInForm from './ClockInForm';
+// import ClockInForm from './ClockInForm';
 import { Icon, Loader, Menu } from 'semantic-ui-react';
 import { loadEmployees } from './loadEmployees';
 

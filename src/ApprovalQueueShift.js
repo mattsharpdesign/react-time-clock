@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { minutesToHoursAndMinutes } from './date-functions';
 import ApprovalQueueShiftEventCell from './ApprovalQueueShiftEventCell';
-import { db } from './firebase-services';
+// import { db } from './firebase-services';
 import { Table, Label, Input, Loader, Checkbox } from 'semantic-ui-react';
 import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
 
