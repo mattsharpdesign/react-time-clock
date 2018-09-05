@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import DayOfShifts from './ApprovalQueueDay';
+import { Message, Divider } from 'semantic-ui-react';
 
 class ShiftsByDay extends Component {
   state = {  }
@@ -19,8 +20,10 @@ class ShiftsByDay extends Component {
     function filterShifts(datestamp) {
       return shifts.filter(shift => moment(shift.start.timestamp.toDate()).format('YYYY-MM-DD') === datestamp);
     }
+    if (shifts.length < 1) return <Message info content='Nothing to show here.' />
     return (
       <div>
+        <Divider hidden />
         {getDatestamps().map(datestamp => (
           <DayOfShifts key={datestamp} date={moment(datestamp).toDate()} shifts={filterShifts(datestamp)} />
         ))}

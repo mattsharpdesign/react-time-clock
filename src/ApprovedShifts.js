@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ShiftsByDay from './ShiftsByDay';
 import WeeklyReport from './WeeklyReport';
+import { loadEmployees } from './loadEmployees';
 // import DayByDayReport from './ApprovalQueue';
 
 function getStartOfPreviousWeek(weekStartsOn) {
@@ -22,12 +23,15 @@ class ApprovedShifts extends Component {
     super(props);
     this.state = {
       shifts: [],
+      employees: [],
       startDate: getStartOfPreviousWeek(props.account.weekStartsOn)
     };
+    this.loadEmployees = loadEmployees.bind(this);
   }
 
   componentDidMount() { 
     console.log('ApprovedShifts did mount')
+    this.loadEmployees();
     this.loadShifts();
   }
 
@@ -55,13 +59,13 @@ class ApprovedShifts extends Component {
 
   render() { 
     const { weekStartsOn } = this.props.account;
-    const { loading, startDate, shifts } = this.state;
+    const { loading, startDate, shifts, employees } = this.state;
     function isStartOfWeek(date) {
       return date.day() === weekStartsOn;
     }
     const panes = [
       { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={shifts} /> },
-      { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={startDate} shifts={shifts} /> }
+      { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={startDate} shifts={shifts} employees={employees} /> }
     ];
     return (
       <div>
