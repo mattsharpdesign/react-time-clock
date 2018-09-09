@@ -38,18 +38,11 @@ class ApprovalQueueDay extends Component {
     const { checkedShifts } = this.state;
     checkedShifts.forEach(id => {
       batch.update(this.props.db.collection('shifts').doc(id), { isApproved: true });
-      // this.setState({ loading: true });
-      // this.props.db.collection('shifts').doc(id).update({
-      //   isApproved: true
-      // }).then(() => {
-      //   this.toggleChecked(id);
-      //   this.setState({ loading: false });
-      // });
     });
     this.setState({ loading: true });
     batch.commit().then(() => {
       this.setState({ loading: false, checkedShifts: [] });
-      this.props.onReload();
+      // this.props.onReload(); /* don't need to reload as we now use Firebase realtime stuff */
     });
   }
 

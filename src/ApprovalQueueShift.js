@@ -53,7 +53,7 @@ class ApprovalQueueShift extends Component {
         </Table.Cell>
         <Table.Cell>
           <Loader inline size='tiny' active={saving} />
-          {!saving && <Checkbox checked={this.props.checked} onChange={this.toggleChecked} />}
+          {!saving && <Checkbox checked={this.props.checked} onChange={this.toggleChecked} title={`ID: ${shift.id}`} />}
         </Table.Cell>
       </Table.Row>
     );

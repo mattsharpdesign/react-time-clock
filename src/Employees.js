@@ -29,7 +29,8 @@ class Employees extends Component {
   }
 
   render() { 
-    const { employees, loading } = this.state;
+    const { employees } = this.props;
+    const { /* employees,  */loading } = this.state;
     return (
       <div>
         <Loader active={loading} content='Loading employees' />

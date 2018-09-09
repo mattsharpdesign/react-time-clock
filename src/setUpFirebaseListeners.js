@@ -1,38 +1,45 @@
-loadEmployees = accountId => {
-  this.setState({ loading: true });
-  db.collection('accounts').doc(accountId).collection('employees').orderBy('firstName').onSnapshot(snapshot => {
+import { db } from './firebase-services';
+import moment from 'moment';
+
+export function loadEmployees(accountId) {
+  this.updateStateFromSnapshot = updateStateFromSnapshot.bind(this);
+  this.setState({ loadingEmployees: true });
+  db.collection('accounts').doc(accountId).collection('employees').orderBy('lastName').onSnapshot(snapshot => {
     this.updateStateFromSnapshot('employees', snapshot);
-    this.setState({ loading: false });
+    this.setState({ loadingEmployees: false });
   });
 }
 
-loadUnfinishedShifts = accountId => {
+export const loadUnfinishedShifts = accountId => {
   db.collection('accounts').doc(accountId).collection('shifts').where('finishedAt', '==', null).onSnapshot(snapshot => {
-    this.updateStateFromSnapshot('unfinishedShifts', snapshot);
+    updateStateFromSnapshot('unfinishedShifts', snapshot);
   });
 }
 
-loadApprovalQueue = accountId => {
+export function loadApprovalQueue(accountId) {
+  this.updateStateFromSnapshot = updateStateFromSnapshot.bind(this);
+  this.setState({ loadingApprovalQueue: true });
   db.collection('accounts').doc(accountId).collection('shifts')
-    .where('start.timestamp', '>=', new Date(0))
+    // .where('start.timestamp', '>=', new Date(0))
     .where('isApproved', '==', false)
     .onSnapshot(snapshot => {
       this.updateStateFromSnapshot('approvalQueue', snapshot);
+      this.setState({ loadingApprovalQueue: false });
     });
 }
 
-loadWeeklyReport = (accountId, startDate) => {
+export const loadWeeklyReport = (accountId, startDate) => {
   this.setState({ weeklyReport: [] });
   db.collection('accounts').doc(accountId).collection('shifts')
     .where('start.timestamp', '>=', startDate)
     .where('start.timestamp', '<', moment(startDate).add(7, 'days').toDate())
     .where('isApproved', '==', true)
     .onSnapshot(snapshot => {
-      this.updateStateFromSnapshot('weeklyReport', snapshot);
+      updateStateFromSnapshot('weeklyReport', snapshot);
     });
 }
 
-updateStateFromSnapshot = (key, snapshot) => {
+function updateStateFromSnapshot(key, snapshot) {
   let array = this.state[key].slice();
   snapshot.docChanges().forEach(change => {
     // Types of change are: 'added', 'modified', 'removed'
