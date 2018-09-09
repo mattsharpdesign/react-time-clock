@@ -16,13 +16,16 @@ class ApprovalQueue extends Component {
 
   loadData = () => {
     this.setState({ loading: true });
-    this.props.db.collection('shifts').where('isApproved', '==', false).get().then(snapshot => {
-      const shifts = [];
-      snapshot.docs.forEach(doc => {
-        shifts.push({ ...doc.data(), id: doc.id });
+    this.props.db.collection('shifts')
+      .where('finish.timestamp', '>=', new Date(0))
+      .where('isApproved', '==', false)
+      .get().then(snapshot => {
+        const shifts = [];
+        snapshot.docs.forEach(doc => {
+          shifts.push({ ...doc.data(), id: doc.id });
+        });
+        this.setState({ shifts, loading: false });
       });
-      this.setState({ shifts, loading: false });
-    });
   }
 
   getShiftTotalMinutes(shift) {

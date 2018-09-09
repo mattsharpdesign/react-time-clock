@@ -45,8 +45,8 @@ class TimeClock extends Component {
     const { here, notHere } = filteredEmployees(employees);
 
     const panes = [
-      { menuItem: 'Here', render: () => <EmployeeCardGroup employees={here} onSelect={this.openClockInForm} /> },
       { menuItem: 'Not here', render: () => <EmployeeCardGroup employees={notHere} onSelect={this.openClockInForm} /> },
+      { menuItem: 'Here', render: () => <EmployeeCardGroup employees={here} onSelect={this.openClockInForm} /> },
     ];
 
     return (

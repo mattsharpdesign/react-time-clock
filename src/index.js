@@ -7,22 +7,49 @@ import { auth, db } from './firebase-services';
 
 class DatabaseLayer {
   databaseRef;
-  // constructor(ref) {
-  //   this.databaseRef = ref;
-  // }
-  startWork(employee, callback) {
-    console.log(this.databaseRef);
-    this.databaseRef.collection('shifts').add({
-      employee: employee,
-      start: { timestamp: new Date() },
-      finish: null
-    }).then(callback);
+  
+  startWork(employee) {
+    return new Promise((resolve, reject) => {
+      this.databaseRef.collection('shifts').add({
+        employee: employee,
+        start: { timestamp: new Date() },
+        finish: null,
+        isApproved: false
+      })
+      .then(() => resolve())
+      .catch(error => reject(error));
+    });
   }
 
-  stopWork(employee, callback) {
-    this.databaseRef.collection('shifts').doc(employee.currentShift.id).update({
-      finish: { timestamp: new Date() }
-    }).then(callback);
+  stopWork(employee) {
+    return new Promise((resolve, reject) => {
+      this.databaseRef.collection('shifts').doc(employee.currentShift.id).update({
+        finish: { timestamp: new Date() }
+      })
+      .then(() => resolve())
+      .catch(error => reject(error));
+    });
+  }
+
+  updateShift(shift, data) {
+    const id = typeof shift === 'object' ? shift.id : shift;
+    return new Promise((resolve, reject) => {
+      this.databaseRef.collection('shifts').doc(id).update(data)
+        .then(() => resolve())
+        .catch(error => reject(error));
+    });
+  }
+
+  approveSelectedShifts(shifts) {
+    return new Promise((resolve, reject) => {
+      const batch = db.batch();
+      shifts.forEach(id => {
+        batch.update(this.databaseRef.collection('shifts').doc(id), { isApproved: true });
+      });
+      batch.commit()
+        .then(() => resolve())
+        .catch(error => reject(error));
+    });
   }
 }
 

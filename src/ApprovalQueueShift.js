@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { minutesToHoursAndMinutes } from './date-functions';
 import ApprovalQueueShiftEventCell from './ApprovalQueueShiftEventCell';
-// import { db } from './firebase-services';
 import { Table, Label, Input, /* Loader,  */Checkbox } from 'semantic-ui-react';
 import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
+import { databaseLayer } from './index';
 
 class ApprovalQueueShift extends Component {
   constructor(props) {
@@ -23,15 +23,18 @@ class ApprovalQueueShift extends Component {
   handleChangeUnpaidMinutes = event => this.setState({ unpaidMinutes: event.target.value });
   
   updateShift = () => {
+    this.setState({ saving: true });
     const { shift } = this.props;
     const { comment, unpaidMinutes } = this.state;
-    this.setState({ saving: true });
-    this.props.db.collection('shifts').doc(shift.id).update({
-      supervisorComment: comment,
-      unpaidMinutes: unpaidMinutes,
-    }).then(() => {
-      this.setState({ saving: false });
-    });
+    databaseLayer.updateShift(shift, {
+        supervisorComment: comment,
+        unpaidMinutes: unpaidMinutes,
+      }).then(() => {
+        this.setState({ saving: false });
+      }).catch(error => {
+        console.error(error);
+        this.setState({ saving: false, error: error });
+      });
   }
 
   toggleChecked = () => {
@@ -40,10 +43,13 @@ class ApprovalQueueShift extends Component {
 
   render() { 
     const { employee, shift, isFirst } = this.props;
-    const { comment, /* saving,  */unpaidMinutes } = this.state;
+    const { comment, saving, unpaidMinutes } = this.state;
     return (
       <Table.Row>
-        <Table.Cell>{isFirst && <Label ribbon color='blue'>{employee.firstName}</Label>}</Table.Cell>
+        <Table.Cell>
+          {isFirst && <Label ribbon color='blue'>{saving ? 'Saving...' : employee.firstName}</Label>}
+          {!isFirst && saving && <span>Saving...</span>}
+        </Table.Cell>
         <ApprovalQueueShiftEventCell event={shift.start} />
         <ApprovalQueueShiftEventCell event={shift.finish} />
         <Table.Cell><Input fluid size='tiny' type='number' value={unpaidMinutes} onChange={this.handleChangeUnpaidMinutes} onBlur={this.updateShift} /></Table.Cell>

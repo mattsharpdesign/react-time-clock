@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Header, Table, Segment, Button } from 'semantic-ui-react';
 import moment from 'moment';
 import ApprovalQueueEmployee from './ApprovalQueueEmployee';
-import { db } from './firebase-services';
+import { databaseLayer } from '.';
 
 class ApprovalQueueDay extends Component {
   state = {
@@ -33,17 +33,18 @@ class ApprovalQueueDay extends Component {
   }
 
   approveSelected = () => {
-    console.log(this.state.checkedShifts);
-    const batch = db.batch();
-    const { checkedShifts } = this.state;
-    checkedShifts.forEach(id => {
-      batch.update(this.props.db.collection('shifts').doc(id), { isApproved: true });
-    });
     this.setState({ loading: true });
-    batch.commit().then(() => {
-      this.setState({ loading: false, checkedShifts: [] });
-      this.props.onReload(); /* don't need to reload if we use Firebase realtime stuff */
-    });
+    console.log(this.state.checkedShifts);
+    databaseLayer.approveSelectedShifts(this.state.checkedShifts)
+      .then(() => {
+        this.setState({ loading: false, checkedShifts: [] });
+        /* don't need to reload if we use Firebase realtime stuff */
+        this.props.onReload(); 
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({ loading: false, error: error });
+      });
   }
 
   render() { 
