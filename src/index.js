@@ -5,10 +5,62 @@ import App from './App';
 import SignIn from './SignIn';
 import { auth, db } from './firebase-services';
 import './index.css';
+import { Provider } from 'mobx-react';
+import { observable, extendObservable } from 'mobx';
+
+class Store {
+
+  databaseRef;
+
+  constructor() {
+    console.log('Store constructed');
+    extendObservable(this, {
+      test: 'some string',
+      employees: [],
+      isLoadingEmployees: false
+    });
+  }
+
+  testAction = () => {
+    this.test = 'some other string';
+    console.log(this.test);
+  }
+
+  fetchEmployees = () => {
+    const employees = [];
+    return new Promise((resolve, reject) => {
+      this.databaseRef.collection('employees').get()
+        .then(snapshot => {
+          snapshot.docs.forEach(doc => {
+            employees.push({ ...doc.data(), id: doc.id });
+          });
+          this.employees = employees;
+          resolve(employees);
+        })
+        .catch(error => reject(error));
+    });
+  }
+}
+
+const store = new Store();
 
 class DatabaseLayer {
   databaseRef;
   
+  fetchEmployees() {
+    const employees = [];
+    return new Promise((resolve, reject) => {
+      this.databaseRef.collection('employees').get()
+        .then(snapshot => {
+          snapshot.docs.forEach(doc => {
+            employees.push({ ...doc.data(), id: doc.id });
+          });
+          resolve(employees);
+        })
+        .catch(error => reject(error));
+    });
+  }
+
   startWork(employee) {
     return new Promise((resolve, reject) => {
       this.databaseRef.collection('shifts').add({
@@ -63,7 +115,8 @@ auth.onAuthStateChanged(user => {
   if (user) {
     db.collection('users').doc(user.uid).get().then(doc => {
       databaseLayer.databaseRef = db.collection('accounts').doc(doc.data().account);
-      ReactDOM.render(<App />, root);
+      store.databaseRef = db.collection('accounts').doc(doc.data().account);
+      ReactDOM.render(<Provider store={store}><App /></Provider>, root);
     });
   } else {
     ReactDOM.render(<SignIn />, root);
