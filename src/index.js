@@ -4,6 +4,7 @@ import registerServiceWorker from './registerServiceWorker';
 import App from './App';
 import SignIn from './SignIn';
 import { auth, db } from './firebase-services';
+import './index.css';
 
 class DatabaseLayer {
   databaseRef;
