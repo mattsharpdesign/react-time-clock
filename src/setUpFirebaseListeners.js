@@ -10,17 +10,19 @@ export function loadEmployees(accountId) {
   });
 }
 
-export const loadUnfinishedShifts = accountId => {
-  db.collection('accounts').doc(accountId).collection('shifts').where('finishedAt', '==', null).onSnapshot(snapshot => {
-    updateStateFromSnapshot('unfinishedShifts', snapshot);
-  });
+export function loadCurrentShifts(accountId) {
+  this.updateStateFromSnapshot = updateStateFromSnapshot.bind(this);
+  db.collection('accounts').doc(accountId).collection('shifts')
+    .where('finishedAt', '==', null)
+    .onSnapshot(snapshot => {
+      this.updateStateFromSnapshot('currentShifts', snapshot);
+    });
 }
 
 export function loadApprovalQueue(accountId) {
   this.updateStateFromSnapshot = updateStateFromSnapshot.bind(this);
   this.setState({ loadingApprovalQueue: true });
   db.collection('accounts').doc(accountId).collection('shifts')
-    // .where('start.timestamp', '>=', new Date(0))
     .where('isApproved', '==', false)
     .onSnapshot(snapshot => {
       this.updateStateFromSnapshot('approvalQueue', snapshot);
@@ -28,14 +30,19 @@ export function loadApprovalQueue(accountId) {
     });
 }
 
-export const loadWeeklyReport = (accountId, startDate) => {
-  this.setState({ weeklyReport: [] });
+export function loadApprovedShifts(accountId, startDate) {
+  this.updateStateFromSnapshot = updateStateFromSnapshot.bind(this);
+  this.setState({ loadingApprovedShifts: true });
+  startDate = moment(startDate).startOf('day').toDate();
+  const endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
+  console.log('Loading shifts starting at', startDate, 'ending at', endDate);
   db.collection('accounts').doc(accountId).collection('shifts')
-    .where('start.timestamp', '>=', startDate)
-    .where('start.timestamp', '<', moment(startDate).add(7, 'days').toDate())
     .where('isApproved', '==', true)
+    .where('start.timestamp', '>=', startDate)
+    .where('start.timestamp', '<=', endDate)
     .onSnapshot(snapshot => {
-      updateStateFromSnapshot('weeklyReport', snapshot);
+      this.updateStateFromSnapshot('approvedShifts', snapshot);
+      this.setState({ loadingApprovedShifts: false });
     });
 }
 
@@ -43,7 +50,6 @@ function updateStateFromSnapshot(key, snapshot) {
   let array = this.state[key].slice();
   snapshot.docChanges().forEach(change => {
     // Types of change are: 'added', 'modified', 'removed'
-    // let index = -1;
     let index = array.findIndex(shift => shift.id === change.doc.id);
     switch (change.type) {
       case 'added':

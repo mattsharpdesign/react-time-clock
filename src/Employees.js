@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
 // import ClockInForm from './ClockInForm';
-import { Icon, Loader, Menu, List } from 'semantic-ui-react';
-import { loadEmployees } from './loadEmployees';
+import { Icon, /* Loader,  */Menu, List } from 'semantic-ui-react';
+// import { loadEmployees } from './loadEmployees';
 
 class Employees extends Component {
   state = {
     employees: [],
-    loading: true,
+    // loading: true,
   }
 
-  constructor(props) {
+  /* constructor(props) {
     super(props);
     this.loadEmployees = loadEmployees.bind(this);
-  }
+  } */
 
   componentDidMount() {
     console.log('Employees did mount');
-    this.loadEmployees();
+    // this.loadEmployees();
   }
 
   openClockInForm = employee => {
@@ -30,10 +30,10 @@ class Employees extends Component {
 
   render() { 
     const { employees } = this.props;
-    const { /* employees,  */loading } = this.state;
+    // const { /* employees,  */loading } = this.state;
     return (
       <div>
-        <Loader active={loading} content='Loading employees' />
+        {/* <Loader active={loading} content='Loading employees' /> */}
         <Menu secondary>
           <Menu.Item header>Manage Your Employees</Menu.Item>
           <Menu.Item position='right' onClick={this.loadEmployees}><Icon name='refresh' /> Reload</Menu.Item>

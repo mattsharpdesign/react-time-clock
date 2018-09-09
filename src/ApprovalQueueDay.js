@@ -42,7 +42,7 @@ class ApprovalQueueDay extends Component {
     this.setState({ loading: true });
     batch.commit().then(() => {
       this.setState({ loading: false, checkedShifts: [] });
-      // this.props.onReload(); /* don't need to reload as we now use Firebase realtime stuff */
+      this.props.onReload(); /* don't need to reload if we use Firebase realtime stuff */
     });
   }
 

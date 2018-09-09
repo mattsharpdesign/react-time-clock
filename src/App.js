@@ -8,23 +8,26 @@ import ApprovedShifts from './ApprovedShifts';
 import { BrowserRouter as Router, Link, NavLink, Route, Switch, Redirect } from 'react-router-dom';
 import TimeClock from './TimeClock';
 import Settings from './Settings';
-import { loadApprovalQueue, loadEmployees } from './setUpFirebaseListeners';
+import { /* loadApprovalQueue, loadApprovedShifts, */ loadCurrentShifts, loadEmployees } from './setUpFirebaseListeners';
+import { getStartOfPreviousWeek } from './getStartOfPreviousWeek';
 
 class App extends Component {
   state = {
     authenticating: true,
     loadingSettings: true,
     employees: [],
-    unfinishedShifts: [],
-    approvalQueue: [],
-    weeklyReport: [],
+    currentShifts: [],
+    // approvalQueue: [],
+    // approvedShifts: [],
     user: null
   }
 
   constructor(props) {
     super(props);
     this.loadEmployees = loadEmployees.bind(this);
-    this.loadApprovalQueue = loadApprovalQueue.bind(this);
+    this.loadCurrentShifts = loadCurrentShifts.bind(this);
+    // this.loadApprovalQueue = loadApprovalQueue.bind(this);
+    // this.loadApprovedShifts = loadApprovedShifts.bind(this);
   }
 
   componentDidMount() {
@@ -37,11 +40,16 @@ class App extends Component {
           const accountId = doc.data().account;
           this.dbRef = db.collection('accounts').doc(accountId);
           this.setState({ user: doc.data() });
-          db.collection('accounts').doc(doc.data().account).get().then(doc => {
+          db.collection('accounts').doc(accountId).get().then(doc => {
             this.setState({ loadingSettings: false, account: doc.data() });
+            const weekStartsOn = doc.data().weekStartsOn;
+            const startDate = getStartOfPreviousWeek(weekStartsOn);
+            console.log('Week starts on', startDate)
+            // this.loadApprovedShifts(accountId, startDate);
           });
           this.loadEmployees(accountId);
-          this.loadApprovalQueue(accountId);
+          this.loadCurrentShifts(accountId);
+          // this.loadApprovalQueue(accountId);
         });
       }
     });
@@ -82,7 +90,7 @@ class App extends Component {
             <Switch>
               <Route path='/' exact render={() => <TimeClock db={dbRef} employees={this.state.employees} />} />
               <Route path='/approval-queue' render={() => <ApprovalQueue db={dbRef} shifts={this.state.approvalQueue} />} />
-              <Route path='/approved-shifts' render={() => <ApprovedShifts db={dbRef} account={account} />} />
+              <Route path='/approved-shifts' render={() => <ApprovedShifts db={dbRef} account={account} employees={this.state.employees} />} />
               <Route path='/employees' render={() => <Employees db={dbRef} employees={this.state.employees} />} />
               <Route path='/settings' render={() => <Settings account={account} />} />
               <Redirect to='/' />

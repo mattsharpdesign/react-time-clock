@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Loader, Menu } from 'semantic-ui-react';
+import { Icon, /* Loader,  */Menu } from 'semantic-ui-react';
 // import { loadEmployees } from './loadEmployees';
 
 class TimeClock extends Component {

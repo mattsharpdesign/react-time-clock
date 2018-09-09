@@ -5,17 +5,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ShiftsByDay from './ShiftsByDay';
 import WeeklyReport from './WeeklyReport';
-import { loadEmployees } from './loadEmployees';
-// import DayByDayReport from './ApprovalQueue';
-
-function getStartOfPreviousWeek(weekStartsOn) {
-  let date = moment();
-  date.subtract(7, 'days');
-  while (date.day() !== weekStartsOn) {
-    date.subtract(1, 'days');
-  }
-  return date.startOf('day').toDate();
-}
+// import { loadEmployees } from './loadEmployees';
+import { getStartOfPreviousWeek } from './getStartOfPreviousWeek';
 
 class ApprovedShifts extends Component {
   constructor(props) {
@@ -26,12 +17,12 @@ class ApprovedShifts extends Component {
       employees: [],
       startDate: getStartOfPreviousWeek(props.account.weekStartsOn)
     };
-    this.loadEmployees = loadEmployees.bind(this);
+    // this.loadEmployees = loadEmployees.bind(this);
   }
 
   componentDidMount() { 
     console.log('ApprovedShifts did mount')
-    this.loadEmployees();
+    // this.loadEmployees();
     this.loadShifts();
   }
 
@@ -58,8 +49,9 @@ class ApprovedShifts extends Component {
   }
 
   render() { 
+    const { employees } = this.props;
     const { weekStartsOn } = this.props.account;
-    const { loading, startDate, shifts, employees } = this.state;
+    const { loading, startDate, shifts/* , employees */ } = this.state;
     function isStartOfWeek(date) {
       return date.day() === weekStartsOn;
     }

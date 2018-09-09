@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { minutesToHoursAndMinutes } from './date-functions';
 import ApprovalQueueShiftEventCell from './ApprovalQueueShiftEventCell';
 // import { db } from './firebase-services';
-import { Table, Label, Input, Loader, Checkbox } from 'semantic-ui-react';
+import { Table, Label, Input, /* Loader,  */Checkbox } from 'semantic-ui-react';
 import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
 
 class ApprovalQueueShift extends Component {
@@ -40,7 +40,7 @@ class ApprovalQueueShift extends Component {
 
   render() { 
     const { employee, shift, isFirst } = this.props;
-    const { comment, saving, unpaidMinutes } = this.state;
+    const { comment, /* saving,  */unpaidMinutes } = this.state;
     return (
       <Table.Row>
         <Table.Cell>{isFirst && <Label ribbon color='blue'>{employee.firstName}</Label>}</Table.Cell>
@@ -52,8 +52,10 @@ class ApprovalQueueShift extends Component {
           <Input size='tiny' value={comment} onChange={this.handleChangeComment} onBlur={this.updateShift} />
         </Table.Cell>
         <Table.Cell>
-          <Loader inline size='tiny' active={saving} />
-          {!saving && <Checkbox checked={this.props.checked} onChange={this.toggleChecked} title={`ID: ${shift.id}`} />}
+          {/* <Loader inline size='tiny' active={saving} /> */}
+          {/* !saving && */}
+            <Checkbox checked={this.props.checked} onChange={this.toggleChecked} title={`ID: ${shift.id}`} />
+          {/* */}
         </Table.Cell>
       </Table.Row>
     );

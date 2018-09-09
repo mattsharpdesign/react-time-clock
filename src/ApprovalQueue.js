@@ -11,7 +11,7 @@ class ApprovalQueue extends Component {
 
   componentDidMount() {
     console.log('ApprovalQueue did mount');
-    // this.loadData();
+    this.loadData();
   }
 
   loadData = () => {
@@ -44,8 +44,8 @@ class ApprovalQueue extends Component {
   }
   
   render() { 
-    const { shifts } = this.props;
-    const { loading/* , shifts */ } = this.state;
+    // const { shifts } = this.props;
+    const { loading, shifts } = this.state;
     function datestamps() {
       let datestamps = [];
       shifts.forEach(shift => {
