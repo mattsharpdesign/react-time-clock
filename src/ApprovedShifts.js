@@ -52,9 +52,6 @@ class ApprovedShifts extends Component {
     const { employees } = this.props;
     const { weekStartsOn } = this.props.account;
     const { loading, startDate, shifts/* , employees */ } = this.state;
-    function isStartOfWeek(date) {
-      return date.day() === weekStartsOn;
-    }
     const panes = [
       { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={shifts} /> },
       { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={startDate} shifts={shifts} employees={employees} /> }
@@ -68,7 +65,7 @@ class ApprovedShifts extends Component {
             <DatePicker 
               selected={moment(startDate)} 
               onChange={this.setStartDate}
-              filterDate={isStartOfWeek}
+              filterDate={date => date.day() === weekStartsOn}
               customInput={<a href='#select-start-date'>{moment(startDate).format('dddd, D MMMM YYYY')}</a>} 
             />
             </Menu.Item>

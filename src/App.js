@@ -88,7 +88,7 @@ class App extends Component {
           </Menu>
           <Container>
             <Switch>
-              <Route path='/' exact render={() => <TimeClock db={dbRef} employees={this.state.employees} />} />
+              <Route path='/' exact render={() => <TimeClock db={dbRef} employees={this.state.employees} currentShifts={this.state.currentShifts} />} />
               <Route path='/approval-queue' render={() => <ApprovalQueue db={dbRef} shifts={this.state.approvalQueue} />} />
               <Route path='/approved-shifts' render={() => <ApprovedShifts db={dbRef} account={account} employees={this.state.employees} />} />
               <Route path='/employees' render={() => <Employees db={dbRef} employees={this.state.employees} />} />

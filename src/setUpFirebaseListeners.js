@@ -13,7 +13,7 @@ export function loadEmployees(accountId) {
 export function loadCurrentShifts(accountId) {
   this.updateStateFromSnapshot = updateStateFromSnapshot.bind(this);
   db.collection('accounts').doc(accountId).collection('shifts')
-    .where('finishedAt', '==', null)
+    .where('finish', '==', null)
     .onSnapshot(snapshot => {
       this.updateStateFromSnapshot('currentShifts', snapshot);
     });

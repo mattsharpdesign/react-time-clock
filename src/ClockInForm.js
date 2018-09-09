@@ -1,29 +1,27 @@
 import React, { Component } from 'react';
 import { db } from './firebase-services';
+import { databaseLayer } from './index';
 
 class ClockInForm extends Component {
   state = {  }
   startWork = () => {
-    const { employee, user } = this.props;
-    console.log(employee.firstName, 'starting work');
-    db.collection('accounts').doc(user.account).collection('shifts').add({
-      employee: employee,
-      startedAt: new Date(),
-      finishedAt: null
-    }).then(() => {
-      this.props.handleCancel();
-    });
+    databaseLayer.startWork(this.props.employee, this.props.onCancel);
   }
-  stopWork = () => {
+
+  stopWork = () => databaseLayer.stopWork(this.props.employee, this.props.onCancel);
+
+  /* stopWork = () => {
     const { currentShift, user } = this.props;
     db.collection('accounts').doc(user.account).collection('shifts').doc(currentShift.id).update({
       finishedAt: new Date()
     }).then(() => {
-      this.props.handleCancel();
+      this.props.onCancel();
     });
-  }
+  } */
+  
   render() { 
-    const { employee, currentShift } = this.props;
+    const { employee } = this.props;
+    const { currentShift } = employee;
     if (!employee) return null;
     return (
       <form>
@@ -34,7 +32,7 @@ class ClockInForm extends Component {
         {currentShift &&
           <button type='button' onClick={this.stopWork}>Stop work</button>
         }
-        <button type='button' onClick={this.props.handleCancel}>Cancel</button>
+        <button type='button' onClick={this.props.onCancel}>Cancel</button>
       </form>
     );
   }
