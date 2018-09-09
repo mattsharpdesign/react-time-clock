@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 // import ClockInForm from './ClockInForm';
-import { Icon, Loader, Menu } from 'semantic-ui-react';
+import { Icon, Loader, Menu, List } from 'semantic-ui-react';
 import { loadEmployees } from './loadEmployees';
 
 class Employees extends Component {
@@ -37,9 +37,9 @@ class Employees extends Component {
           <Menu.Item header>Manage Your Employees</Menu.Item>
           <Menu.Item position='right' onClick={this.loadEmployees}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
-        <ul>
-          {employees.map(e => <li key={e.id}>{e.firstName} ({e.id})</li>)}
-        </ul>
+        <List relaxed>
+          {employees.map(e => <List.Item key={e.id}>{e.lastName}, {e.firstName} ({e.id})</List.Item>)}
+        </List>
       </div>
     )
   }
