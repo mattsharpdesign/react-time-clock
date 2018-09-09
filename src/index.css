@@ -1,3 +1,7 @@
+.ui.stackable.menu {
+  margin-top: 0;
+}
+
 .ui.attached.tabular.menu {
   margin-bottom: 20px;
 }
