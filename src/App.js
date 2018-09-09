@@ -17,8 +17,6 @@ class App extends Component {
     loadingSettings: true,
     employees: [],
     currentShifts: [],
-    // approvalQueue: [],
-    // approvedShifts: [],
     user: null
   }
 
@@ -26,8 +24,6 @@ class App extends Component {
     super(props);
     this.loadEmployees = loadEmployees.bind(this);
     this.loadCurrentShifts = loadCurrentShifts.bind(this);
-    // this.loadApprovalQueue = loadApprovalQueue.bind(this);
-    // this.loadApprovedShifts = loadApprovedShifts.bind(this);
   }
 
   componentDidMount() {
