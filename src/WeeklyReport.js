@@ -3,6 +3,7 @@ import { Table } from 'semantic-ui-react';
 import moment from 'moment';
 import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
 import { minutesToHoursAndMinutes } from './date-functions';
+import { observer } from 'mobx-react';
 
 class WeeklyReport extends Component {
   state = {  }
@@ -73,4 +74,4 @@ class WeeklyReport extends Component {
   }
 }
  
-export default WeeklyReport;
+export default observer(WeeklyReport);

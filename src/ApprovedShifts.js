@@ -7,69 +7,36 @@ import ShiftsByDay from './ShiftsByDay';
 import WeeklyReport from './WeeklyReport';
 // import { loadEmployees } from './loadEmployees';
 import { getStartOfPreviousWeek } from './getStartOfPreviousWeek';
+import { inject, observer } from 'mobx-react';
 
 class ApprovedShifts extends Component {
-  constructor(props) {
-    console.log('ApprovedShifts constructed');
-    super(props);
-    this.state = {
-      shifts: [],
-      employees: [],
-      startDate: getStartOfPreviousWeek(props.account.weekStartsOn)
-    };
-    // this.loadEmployees = loadEmployees.bind(this);
-  }
-
-  componentDidMount() { 
-    console.log('ApprovedShifts did mount')
-    // this.loadEmployees();
-    this.loadShifts();
-  }
-
-  loadShifts = () => {
-    this.setState({ loading: true });
-    const shifts = [];
-    let startDate = moment(this.state.startDate).startOf('day').toDate();
-    let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
-    console.log('Loading shifts starting at', startDate, 'ending at', endDate);
-    this.props.db.collection('shifts')
-      .where('isApproved', '==', true)
-      .where('start.timestamp', '>=', startDate)
-      .where('start.timestamp', '<=', endDate)
-      .get().then(snapshot => {
-        snapshot.docs.forEach(doc => {
-          shifts.push({ ...doc.data(), id: doc.id });
-        });
-        this.setState({ shifts, loading: false });
-      });
-  }
-
-  setStartDate = date => {
-    this.setState({ startDate: date }, this.loadShifts);
+  
+  reload = () => {
+    this.props.store.setWeeklyReportStartDate(this.props.store.weeklyReportStartDate);
   }
 
   render() { 
-    const { employees } = this.props;
-    const { weekStartsOn } = this.props.account;
-    const { loading, startDate, shifts/* , employees */ } = this.state;
+    const { employees, weeklyReportStartDate, setWeeklyReportStartDate, loadingWeeklyReport, weeklyReportShifts } = this.props.store;
+    const { weekStartsOn } = this.props.store.account;
+    // const { loading, startDate, shifts/* , employees */ } = this.state;
     const panes = [
-      { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={shifts} /> },
-      { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={startDate} shifts={shifts} employees={employees} /> }
+      { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={weeklyReportShifts} /> },
+      { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={weeklyReportStartDate} shifts={weeklyReportShifts} employees={employees} /> }
     ];
     return (
       <div>
-        <Loader active={loading} content='Loading approved shifts' />
+        <Loader active={loadingWeeklyReport} content='Loading approved shifts' />
         <Menu secondary>
           <Menu.Item header>Approved Shifts for week beginning</Menu.Item>
           <Menu.Item>
             <DatePicker 
-              selected={moment(startDate)} 
-              onChange={this.setStartDate}
+              selected={moment(weeklyReportStartDate)} 
+              onChange={setWeeklyReportStartDate}
               filterDate={date => date.day() === weekStartsOn}
-              customInput={<a href='#select-start-date'>{moment(startDate).format('dddd, D MMMM YYYY')}</a>} 
+              customInput={<a href='#select-start-date'>{moment(weeklyReportStartDate).format('dddd, D MMMM YYYY')}</a>} 
             />
             </Menu.Item>
-            <Menu.Item position='right' onClick={this.loadShifts}><Icon name='refresh' /> Reload</Menu.Item>
+            <Menu.Item position='right' onClick={this.reload}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
         <Tab panes={panes} />
       </div>
@@ -77,4 +44,4 @@ class ApprovedShifts extends Component {
   }
 }
  
-export default ApprovedShifts;
+export default inject('store')(observer(ApprovedShifts));

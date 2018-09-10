@@ -1,5 +1,7 @@
 import { auth, db } from './firebase-services';
 import { extendObservable } from 'mobx';
+import { getStartOfPreviousWeek } from './getStartOfPreviousWeek'
+import moment from 'moment';
 
 export default class Store {
 
@@ -14,6 +16,9 @@ export default class Store {
       employees: [],
       currentShifts: [],
       approvalQueue: [],
+      weeklyReportStartDate: new Date(),
+      loadingWeeklyReport: false,
+      weeklyReportShifts: [],
       loading: false,
     });
 
@@ -30,6 +35,8 @@ export default class Store {
             this.attachEmployeesListener();
             this.fetchCurrentShifts();
             this.attachApprovalQueueListener();
+            this.setWeeklyReportStartDate();
+
           });
         });
       } else {
@@ -45,6 +52,26 @@ export default class Store {
 
   getEmployeeStatus = employee => {
     return this.currentShifts.find(s => s.employee.id === employee.id) ? 'Here' : employee.isComingBack ? 'Coming back' : 'Not here';
+  }
+
+  setWeeklyReportStartDate = date => {
+    this.weeklyReportStartDate = date ? date : getStartOfPreviousWeek(this.account.weekStartsOn);
+    this.loadingWeeklyReport = true;
+    this.weeklyReportShifts = [];
+    let startDate = moment(this.weeklyReportStartDate).startOf('day').toDate();
+    let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
+    console.log('Loading shifts starting at', startDate, 'ending at', endDate);
+    db.collection('accounts').doc(this.account.id).collection('shifts')
+      .where('isApproved', '==', true)
+      .where('start.timestamp', '>=', startDate)
+      .where('start.timestamp', '<=', endDate)
+      .get().then(snapshot => {
+        this.loadingWeeklyReport = false;
+        snapshot.docs.forEach(doc => {
+          console.log(doc.data());
+          this.weeklyReportShifts.push({ ...doc.data(), id: doc.id });
+        });
+      });
   }
 
   signOut = () => {

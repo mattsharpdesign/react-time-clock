@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import DayOfShifts from './ApprovalQueueDay';
 import { Message } from 'semantic-ui-react';
+import { observer } from 'mobx-react';
 
 class ShiftsByDay extends Component {
   state = {  }
@@ -31,4 +32,4 @@ class ShiftsByDay extends Component {
   }
 }
  
-export default ShiftsByDay;
+export default observer(ShiftsByDay);
