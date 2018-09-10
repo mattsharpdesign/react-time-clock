@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { /* Icon, Loader, Menu, Card, */ Modal, Tab } from 'semantic-ui-react';
+import { Icon, /* Loader, Menu, Card, */ Modal, Tab, Menu } from 'semantic-ui-react';
 import ClockInForm from './ClockInForm';
 import EmployeeCardGroup from './EmployeeCardGroup';
 import { inject, observer } from 'mobx-react';
@@ -35,7 +35,7 @@ class TimeClock extends Component {
       employees.forEach(e => {
         const index = currentShifts.findIndex(s => s.employee.id === e.id);
         if (index > -1) {
-          here.push({ ...e, currentShift: currentShifts[index] });
+          here.push(e);
         } else {
           notHere.push(e);
         }
@@ -46,8 +46,16 @@ class TimeClock extends Component {
     const { here, notHere } = filteredEmployees(employees);
 
     const panes = [
-      { menuItem: 'Not here', render: () => <EmployeeCardGroup employees={notHere} onSelect={this.openClockInForm} /> },
-      { menuItem: 'Here', render: () => <EmployeeCardGroup employees={here} onSelect={this.openClockInForm} /> },
+      { menuItem: (
+        <Menu.Item key={1} color='green'>
+          <Icon name='sign-in' /> Clock In
+        </Menu.Item>
+      ), render: () => <EmployeeCardGroup employees={notHere} onSelect={this.openClockInForm} /> },
+      { menuItem: (
+        <Menu.Item key={2} color='red'>
+          <Icon name='sign-out' /> Clock Out
+        </Menu.Item>
+      ), render: () => <EmployeeCardGroup employees={here} onSelect={this.openClockInForm} /> },
     ];
 
     return (
@@ -59,9 +67,6 @@ class TimeClock extends Component {
             <ClockInForm employee={selectedEmployee} onCancel={this.closeClockInForm} />
           </Modal.Content>
         </Modal>
-        <ul>
-          {currentShifts.map(s => <li key={s.id}>{s.id} ({s.employee.firstName} - {s.test})</li>)}
-        </ul>
       </div>
     );
   }

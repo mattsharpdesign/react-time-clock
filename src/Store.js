@@ -41,7 +41,10 @@ export default class Store {
         if (this.detachApprovalQueueListener) this.detachApprovalQueueListener();
       }
     });
+  }
 
+  getEmployeeStatus = employee => {
+    return this.currentShifts.find(s => s.employee.id === employee.id) ? 'Here' : employee.isComingBack ? 'Coming back' : 'Not here';
   }
 
   signOut = () => {

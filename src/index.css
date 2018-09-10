@@ -5,3 +5,15 @@
 .ui.attached.tabular.menu {
   margin-bottom: 20px;
 }
+
+.description.coming-back {
+  color: #f2711c !important;
+}
+
+.description.not-here {
+  color: rgb(219, 40, 40) !important;
+}
+
+.description.here {
+  color: rgb(33, 186, 69) !important;
+}
