@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import ApprovalQueueDay from './ApprovalQueueDay';
-import { Icon, Menu, Loader } from 'semantic-ui-react';
+import { Icon, Menu/* , Loader */ } from 'semantic-ui-react';
+import { inject, observer } from 'mobx-react';
 
 class ApprovalQueue extends Component {
-  state = {
+  /* state = {
     shifts: [],
     checkedShifts: []
   }
@@ -26,7 +27,7 @@ class ApprovalQueue extends Component {
         });
         this.setState({ shifts, loading: false });
       });
-  }
+  } */
 
   getShiftTotalMinutes(shift) {
     let minutes = moment(shift.finish.timestamp.toDate()).diff(moment(shift.start.timestamp.toDate()), 'minutes');
@@ -41,14 +42,13 @@ class ApprovalQueue extends Component {
     return hours + ':' + remainingMinutes;
   }
 
-  updateShift = (shift, data) => {
-    let target = this.props.shifts.find(s => s.id === shift.id);
-    this.props.updateShift(target, data);
-  }
+  // updateShift = (shift, data) => {
+  //   let target = this.props.shifts.find(s => s.id === shift.id);
+  //   this.props.updateShift(target, data);
+  // }
   
   render() { 
-    // const { shifts } = this.props;
-    const { loading, shifts } = this.state;
+    const shifts = this.props.store.approvalQueue;
     function datestamps() {
       let datestamps = [];
       shifts.forEach(shift => {
@@ -64,7 +64,7 @@ class ApprovalQueue extends Component {
     }
     return (
       <div>
-        <Loader active={loading} content='Loading approval queue' />
+        {/* <Loader active={loading} content='Loading approval queue' /> */}
         <Menu secondary>
           <Menu.Item header>Approval Queue</Menu.Item>
           <Menu.Item position='right' onClick={this.loadData}><Icon name='refresh' /> Reload</Menu.Item>
@@ -77,4 +77,4 @@ class ApprovalQueue extends Component {
   }
 }
  
-export default ApprovalQueue;
+export default inject('store')(observer(ApprovalQueue));

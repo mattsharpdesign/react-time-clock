@@ -5,10 +5,8 @@ import { inject, observer } from 'mobx-react';
 class ClockInForm extends Component {
   state = {  }
   
-  // startWork = () => databaseLayer.startWork(this.props.employee).then(() => this.props.onCancel());
   startWork = () => this.props.store.startWork(this.props.employee).then(() => this.props.onCancel());
 
-  // stopWork = () => databaseLayer.stopWork(this.props.employee).then(() => this.props.onCancel());
   stopWork = () => this.props.store.stopWork(this.props.employee).then(() => this.props.onCancel());
 
   render() { 
