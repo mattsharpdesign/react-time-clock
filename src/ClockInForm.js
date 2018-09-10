@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
-import { databaseLayer } from './index';
+import { inject, observer } from 'mobx-react';
+// import { databaseLayer } from './index';
 
 class ClockInForm extends Component {
   state = {  }
   
-  startWork = () => databaseLayer.startWork(this.props.employee).then(() => this.props.onCancel());
+  // startWork = () => databaseLayer.startWork(this.props.employee).then(() => this.props.onCancel());
+  startWork = () => this.props.store.startWork(this.props.employee).then(() => this.props.onCancel());
 
-  stopWork = () => databaseLayer.stopWork(this.props.employee).then(() => this.props.onCancel());
+  // stopWork = () => databaseLayer.stopWork(this.props.employee).then(() => this.props.onCancel());
+  stopWork = () => this.props.store.stopWork(this.props.employee).then(() => this.props.onCancel());
 
   render() { 
     const { employee } = this.props;
@@ -27,4 +30,4 @@ class ClockInForm extends Component {
   }
 }
  
-export default ClockInForm;
+export default inject('store')(observer(ClockInForm));

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { /* Icon, Loader, Menu, Card, */ Modal, Tab } from 'semantic-ui-react';
 import ClockInForm from './ClockInForm';
 import EmployeeCardGroup from './EmployeeCardGroup';
+import { inject, observer } from 'mobx-react';
 
 class TimeClock extends Component {
   state = {
@@ -24,7 +25,7 @@ class TimeClock extends Component {
   }
 
   render() { 
-    const { employees, currentShifts } = this.props;
+    const { employees, currentShifts } = this.props.store;
     // const { /* employees,  */loading } = this.state;
     const { isClockInFormOpen, selectedEmployee } = this.state;
 
@@ -58,9 +59,12 @@ class TimeClock extends Component {
             <ClockInForm employee={selectedEmployee} onCancel={this.closeClockInForm} />
           </Modal.Content>
         </Modal>
+        <ul>
+          {currentShifts.map(s => <li key={s.id}>{s.id} ({s.employee.firstName} - {s.test})</li>)}
+        </ul>
       </div>
     );
   }
 }
  
-export default TimeClock;
+export default inject('store')(observer(TimeClock));

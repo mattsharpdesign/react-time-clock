@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
 import { Icon, Loader, Menu, List } from 'semantic-ui-react';
 import EmployeeListItem from './EmployeeListItem';
-import { databaseLayer } from '.';
 import { inject, observer } from 'mobx-react';
 
 class Employees extends Component {
   state = {
     employees: [],
-    isloadingEmployees: true,
-    isLoadingCurrentShifts: true,
   }
 
   componentDidMount() {
@@ -26,14 +23,12 @@ class Employees extends Component {
 
   render() { 
     // const { employees, isLoadingCurrentShifts, isloadingEmployees } = this.state;
-    const { employees } = this.props.store;
+    const { employees, loading } = this.props.store;
     return (
       <div>
-        {/* <Loader active={isloadingEmployees} inline='centered' content='Loading employees' />
-        <Loader active={isLoadingCurrentShifts} inline='centered' content='Loading current shifts' /> */}
+        <Loader active={loading} content='Loading employees' />
         <Menu secondary>
           <Menu.Item header>Manage Your Employees</Menu.Item>
-          <Menu.Item as='a' onClick={this.props.store.testAction}>{this.props.store.test}</Menu.Item>
           <Menu.Item position='right' onClick={this.refresh}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
         <List relaxed='very'>

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Header, Table, Segment, Button } from 'semantic-ui-react';
 import moment from 'moment';
 import ApprovalQueueEmployee from './ApprovalQueueEmployee';
-import { databaseLayer } from '.';
+import { inject, observer } from 'mobx-react';
+// import { databaseLayer } from '.';
 
 class ApprovalQueueDay extends Component {
   state = {
@@ -35,7 +36,7 @@ class ApprovalQueueDay extends Component {
   approveSelected = () => {
     this.setState({ loading: true });
     console.log(this.state.checkedShifts);
-    databaseLayer.approveSelectedShifts(this.state.checkedShifts)
+    this.props.store.approveSelectedShifts(this.state.checkedShifts)
       .then(() => {
         this.setState({ loading: false, checkedShifts: [] });
         /* don't need to reload if we use Firebase realtime stuff */
@@ -79,4 +80,4 @@ class ApprovalQueueDay extends Component {
   }
 }
  
-export default ApprovalQueueDay;
+export default inject('store')(observer(ApprovalQueueDay));

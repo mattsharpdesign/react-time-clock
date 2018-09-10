@@ -3,7 +3,8 @@ import { minutesToHoursAndMinutes } from './date-functions';
 import ApprovalQueueShiftEventCell from './ApprovalQueueShiftEventCell';
 import { Table, Label, Input, /* Loader,  */Checkbox } from 'semantic-ui-react';
 import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
-import { databaseLayer } from './index';
+import { inject, observer } from 'mobx-react';
+// import { databaseLayer } from './index';
 
 class ApprovalQueueShift extends Component {
   constructor(props) {
@@ -26,7 +27,7 @@ class ApprovalQueueShift extends Component {
     this.setState({ saving: true });
     const { shift } = this.props;
     const { comment, unpaidMinutes } = this.state;
-    databaseLayer.updateShift(shift, {
+    this.props.store.updateShift(shift, {
         supervisorComment: comment,
         unpaidMinutes: unpaidMinutes,
       }).then(() => {
@@ -68,4 +69,4 @@ class ApprovalQueueShift extends Component {
   }
 }
  
-export default ApprovalQueueShift;
+export default inject('store')(observer(ApprovalQueueShift));
