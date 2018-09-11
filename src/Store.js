@@ -57,7 +57,6 @@ export default class Store {
   setWeeklyReportStartDate = date => {
     this.weeklyReportStartDate = date ? date : getStartOfPreviousWeek(this.account.weekStartsOn);
     this.loadingWeeklyReport = true;
-    this.weeklyReportShifts = [];
     let startDate = moment(this.weeklyReportStartDate).startOf('day').toDate();
     let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
     console.log('Loading shifts starting at', startDate, 'ending at', endDate);
@@ -67,11 +66,12 @@ export default class Store {
       .where('start.timestamp', '<=', endDate)
       .get().then(snapshot => {
         this.loadingWeeklyReport = false;
-        snapshot.docs.forEach(doc => {
-          console.log(doc.data());
-          this.weeklyReportShifts.push({ ...doc.data(), id: doc.id });
+        this.weeklyReportShifts = [];
+          snapshot.docs.forEach(doc => {
+            console.log(doc.data());
+            this.weeklyReportShifts.push({ ...doc.data(), id: doc.id });
+          });
         });
-      });
   }
 
   signOut = () => {

@@ -40,7 +40,7 @@ class ApprovalQueueDay extends Component {
       .then(() => {
         this.setState({ loading: false, checkedShifts: [] });
         /* don't need to reload if we use Firebase realtime stuff */
-        this.props.onReload(); 
+        // this.props.onReload(); 
       })
       .catch(error => {
         console.error(error);

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import DayOfShifts from './ApprovalQueueDay';
+import ApprovalQueueDay from './ApprovalQueueDay';
 import { Message } from 'semantic-ui-react';
 import { observer } from 'mobx-react';
 
@@ -25,7 +25,7 @@ class ShiftsByDay extends Component {
     return (
       <div>
         {getDatestamps().map(datestamp => (
-          <DayOfShifts 
+          <ApprovalQueueDay 
             key={datestamp} 
             date={moment(datestamp).toDate()} 
             shifts={filterShifts(datestamp)} 
