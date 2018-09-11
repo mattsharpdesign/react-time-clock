@@ -5,8 +5,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ShiftsByDay from './ShiftsByDay';
 import WeeklyReport from './WeeklyReport';
-// import { loadEmployees } from './loadEmployees';
-import { getStartOfPreviousWeek } from './getStartOfPreviousWeek';
 import { inject, observer } from 'mobx-react';
 
 class ApprovedShifts extends Component {
@@ -20,7 +18,7 @@ class ApprovedShifts extends Component {
     const { weekStartsOn } = this.props.store.account;
     // const { loading, startDate, shifts/* , employees */ } = this.state;
     const panes = [
-      { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={weeklyReportShifts} /> },
+      { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={weeklyReportShifts} onReload={this.reload} /> },
       { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={weeklyReportStartDate} shifts={weeklyReportShifts} employees={employees} /> }
     ];
     return (

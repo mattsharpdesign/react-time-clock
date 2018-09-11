@@ -25,7 +25,13 @@ class ShiftsByDay extends Component {
     return (
       <div>
         {getDatestamps().map(datestamp => (
-          <DayOfShifts key={datestamp} date={moment(datestamp).toDate()} shifts={filterShifts(datestamp)} />
+          <DayOfShifts 
+            key={datestamp} 
+            date={moment(datestamp).toDate()} 
+            shifts={filterShifts(datestamp)} 
+            isApprovedShifts={true} 
+            onReload={this.props.onReload}
+          />
         ))}
       </div>
     );

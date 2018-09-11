@@ -48,6 +48,21 @@ class ApprovalQueueDay extends Component {
       });
   }
 
+  unapproveSelected = () => {
+    this.setState({ loading: true });
+    console.log(this.state.checkedShifts);
+    this.props.store.unapproveSelectedShifts(this.state.checkedShifts)
+      .then(() => {
+        this.setState({ loading: false, checkedShifts: [] });
+        /* don't need to reload if we use Firebase realtime stuff */
+        this.props.onReload(); 
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({ loading: false, error: error });
+      });
+  }
+
   render() { 
     const { date, shifts } = this.props;
     const { checkedShifts, loading } = this.state;
@@ -72,9 +87,16 @@ class ApprovalQueueDay extends Component {
             ))}
           </Table.Body>
         </Table>
-        <Button positive={checkedShifts.length > 0} disabled={checkedShifts.length < 1} loading={loading} onClick={this.approveSelected}>
-          Approve Selected
-        </Button>
+        {this.props.isApprovalQueue &&
+          <Button positive={checkedShifts.length > 0} disabled={checkedShifts.length < 1} loading={loading} onClick={this.approveSelected}>
+            Approve Selected
+          </Button>
+        }
+        {this.props.isApprovedShifts &&
+          <Button negative={checkedShifts.length > 0} disabled={checkedShifts.length < 1} loading={loading} onClick={this.unapproveSelected}>
+            Send back to approval queue
+          </Button>
+        }
       </Segment>
     );
   }

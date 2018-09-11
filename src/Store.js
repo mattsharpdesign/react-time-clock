@@ -204,4 +204,16 @@ export default class Store {
         .catch(error => reject(error));
     });
   }
+
+  unapproveSelectedShifts(shifts) {
+    return new Promise((resolve, reject) => {
+      const batch = db.batch();
+      shifts.forEach(id => {
+        batch.update(db.collection('accounts').doc(this.account.id).collection('shifts').doc(id), { isApproved: false });
+      });
+      batch.commit()
+        .then(() => resolve())
+        .catch(error => reject(error));
+    });
+  }
 }
