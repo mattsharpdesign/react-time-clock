@@ -8,5 +8,5 @@ import Store from './Store';
 
 const store = new Store();
 
-ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
+ReactDOM.render(<Provider store={store} appVersion='dev'><App /></Provider>, document.getElementById('root'));
 registerServiceWorker();

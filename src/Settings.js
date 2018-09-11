@@ -11,6 +11,7 @@ class Settings extends Component {
       <Segment>
         <Header>Settings</Header>
         <List relaxed>
+          <List.Item>App version:&nbsp;<strong>{this.props.appVersion}</strong></List.Item>
           <List.Item>Logged in as:&nbsp;<strong>{user.email}</strong></List.Item>
           <List.Item>Account:&nbsp;<strong>{account.name} ({account.id})</strong></List.Item>
           <List.Item>Role:&nbsp;<strong>{user.role}</strong></List.Item>
@@ -28,4 +29,4 @@ class Settings extends Component {
   }
 }
  
-export default inject('store')(observer(Settings));
+export default inject('store', 'appVersion')(observer(Settings));
