@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, /* Loader, Menu, Card, */ Modal, Tab, Menu } from 'semantic-ui-react';
+import { Icon, Tab, Menu } from 'semantic-ui-react';
 import ClockInForm from './ClockInForm';
 import EmployeeCardGroup from './EmployeeCardGroup';
 import { inject, observer } from 'mobx-react';
@@ -61,12 +61,9 @@ class TimeClock extends Component {
     return (
       <div>
         <Tab panes={panes} />
-        <Modal basic size='fullscreen' open={isClockInFormOpen} closeIcon onClose={this.closeClockInForm}>
-          <Modal.Header>Clock in or out</Modal.Header>
-          <Modal.Content>
-            <ClockInForm employee={selectedEmployee} onCancel={this.closeClockInForm} />
-          </Modal.Content>
-        </Modal>
+        {isClockInFormOpen &&
+          <ClockInForm employee={selectedEmployee} onCancel={this.closeClockInForm} onClose={this.closeClockInForm} />
+        }
       </div>
     );
   }

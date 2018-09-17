@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-// import { databaseLayer } from './index';
+import placeholder from './profile_placeholder.png';
+import { Button, Image, Modal } from 'semantic-ui-react';
 
 class ClockInForm extends Component {
   state = {  }
@@ -13,17 +14,22 @@ class ClockInForm extends Component {
     const { employee } = this.props;
     const { currentShift } = employee;
     if (!employee) return null;
+    const profilePicUrl = employee.profilePicUrl || placeholder;
     return (
-      <form>
-        Employee: {employee.firstName}
-        {!currentShift &&
-          <button type='button' onClick={this.startWork}>Start work</button>
-        }
-        {currentShift &&
-          <button type='button' onClick={this.stopWork}>Stop work</button>
-        }
-        <button type='button' onClick={this.props.onCancel}>Cancel</button>
-      </form>
+      <Modal open closeIcon onClose={this.props.onClose}>
+        <Modal.Header>
+          <Image avatar src={profilePicUrl} /> {employee.firstName}
+        </Modal.Header>
+        <Modal.Content>
+          {!currentShift &&
+            <Button positive type='button' onClick={this.startWork}>Start work</Button>
+          }
+          {currentShift &&
+            <button type='button' onClick={this.stopWork}>Stop work</button>
+          }
+          <Button color='orange' type='button' onClick={this.props.onCancel}>Cancel</Button>
+        </Modal.Content>
+      </Modal>
     );
   }
 }
