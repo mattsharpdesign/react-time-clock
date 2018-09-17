@@ -19,7 +19,7 @@ class ClockInForm extends Component {
   onWebcamError = error => {
     console.log(error);
     console.log(this.webcam);
-    this.webcam.video.hidden = true;
+    // this.webcam.video.hidden = true;
     this.setState({ error: error });
   }
 
@@ -39,7 +39,7 @@ class ClockInForm extends Component {
       facingMode: "user"
     };
     return (
-      <Modal open closeIcon onClose={this.props.onClose}>
+      <Modal size='fullscreen' open closeIcon onClose={this.props.onClose}>
         <Modal.Header>
           <Image avatar src={profilePicUrl} /> {employee.firstName}
         </Modal.Header>
@@ -50,9 +50,12 @@ class ClockInForm extends Component {
             ref={this.setRef}
             screenshotFormat="image/jpeg"
             width={350}
-            videoConstraints={videoConstraints}
+            // videoConstraints={videoConstraints}
             onUserMediaError={this.onWebcamError}
           />
+          {!error &&
+            <Message content='This is a test message...' />
+          }
           {error &&
             <Message warning icon='eye slash outline' header='Camera not available' content={error.message} />
           }
