@@ -17,3 +17,8 @@
 .description.here {
   color: rgb(33, 186, 69) !important;
 }
+
+video {
+  border: 1px solid rebeccapurple;
+  width: 100%;
+}
