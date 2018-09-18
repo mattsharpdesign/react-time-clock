@@ -19,6 +19,11 @@
 }
 
 video {
-  border: 1px solid rebeccapurple;
+  /* border: 1px solid rebeccapurple; */
   width: 100%;
+}
+
+.clock-in-buttons {
+  margin-bottom: 10px;
+  text-align: center;
 }
