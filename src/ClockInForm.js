@@ -3,11 +3,13 @@ import { inject, observer } from 'mobx-react';
 import placeholder from './profile_placeholder.png';
 import { Button, Image, Input, Modal, Message/* , Divider */ } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
-// import ClockInButton from './ClockInButton';
 
 class ClockInForm extends Component {
+  
   state = {
-    timer: -1
+    hasCamera: false,
+    timer: -1,
+    comment: '',
   }
   
   setRef = webcam => {
@@ -19,13 +21,21 @@ class ClockInForm extends Component {
     console.log(imageSrc)
   };
 
-  onWebcamError = error => {
-    this.webcam.video.hidden = true;
-    this.setState({ error: error });
+  onWebcam = () => {
+    this.setState({ hasCamera: true });
   }
 
-  startWork = () => {
-    this.startCountdown();
+  onWebcamError = error => {
+    this.setState({ hasCamera: false, error: error });
+  }
+
+  clockInOrOut = action => {
+    this.setState({ action: action });
+    if (this.state.hasCamera) {
+      this.startCountdown();
+    } else {
+      this.setState({ confirming: true });
+    }
     // const screenshot = this.webcam.getScreenshot();
     // console.log(screenshot);
     // this.props.store.startWork(this.props.employee).then(() => this.props.onCancel());
@@ -38,9 +48,9 @@ class ClockInForm extends Component {
       if (newValue <= 0) {
         // take the photo and stop the timer
         clearInterval(this.timerIntervalId);
-        const screenshot = this.webcam.getScreenshot();
-        this.setState({ screenshot: screenshot });
-        this.webcam.video.hidden = true;
+        const photo = this.webcam.getScreenshot();
+        this.setState({ photo: photo, confirming: true });
+        // this.webcam.video.hidden = true;
       }
       this.setState({ timer: this.state.timer - 1 });
     }, 1000);
@@ -53,89 +63,88 @@ class ClockInForm extends Component {
   }
 
   confirm = () => {
-    console.log(this.state.screenshot)
+    const { action, comment, photo } = this.state;
+    switch (action) {
+      case 'start':
+        console.log('Starting', comment, photo)
+        break;
+      case 'stop':
+        console.log('Finishing', comment, photo)
+        break;
+      case 'pause':
+        console.log('Leaving temporarily', comment, photo)
+        break;
+      default:
+        console.log('Unknown action')
+    }
   }
 
   componentWillUnmount() {
     if (this.timerIntervalId) clearInterval(this.timerIntervalId);
   }
 
-  stopWork = () => this.props.store.stopWork(this.props.employee).then(() => this.props.onCancel());
+  // stopWork = () => this.props.store.stopWork(this.props.employee).then(() => this.props.onCancel());
+
+  handleChangeComment = event => this.setState({ comment: event.target.value });
 
   render() { 
-    const { timer, error, screenshot } = this.state;
+    const { comment, confirming, timer, error, photo, hasCamera } = this.state;
     const { employee } = this.props;
-    const { currentShift } = employee;
-    const { isWorking } = this.props.store.isEmployeeWorking(employee);
+    const isWorking = this.props.store.isEmployeeWorking(employee);
     if (!employee) return null;
     const profilePicUrl = employee.profilePicUrl || placeholder;
     return (
-      <Modal size='fullscreen' open closeIcon onClose={this.props.onClose}>
+      <Modal open closeIcon onClose={this.props.onClose}>
         <Modal.Header>
           <Image avatar src={profilePicUrl} /> {employee.firstName}
         </Modal.Header>
         <Modal.Content>
-          {!screenshot &&
+          {!confirming &&
             <div className='clock-in-buttons'>
               {!isWorking &&
-                <Button positive content={timer > 0 ? timer : 'Start work'} 
-                  onClick={this.startWork} disabled={false} />
+                <Button positive content='Start work' onClick={() => this.clockInOrOut('start')} />
               }
               {isWorking &&
                 <React.Fragment>
-                  <Button negative content='Finish work' />
-                  <Button color='orange' content='Leave temporarily' />
+                  <Button negative content='Finish work' onClick={() => this.clockInOrOut('stop')} />
+                  <Button color='orange' content='Leave temporarily' onClick={() => this.clockInOrOut('pause')} />
                 </React.Fragment>
               }
             </div>
           }
-          {screenshot &&
+          {confirming &&
             <div>
-              <Input fluid type='text' placeholder='Add a comment?' />
+              <Input fluid type='text' value={comment} onChange={this.handleChangeComment} placeholder='Add a comment?' />
               <br />
               <Button positive content='Done' onClick={this.confirm} />
-              <Button basic content='Take again' onClick={this.takeAgain} />
+              {hasCamera && <Button basic content='Take again' onClick={this.takeAgain} />}
             </div>
           }
-          <Webcam
-            audio={false}
-            height={350}
-            ref={this.setRef}
-            screenshotFormat="image/jpeg"
-            screenshotWidth={350}
-            screenshotQuality={0.5}
-            width={350}
-            // videoConstraints={videoConstraints}
-            onUserMediaError={this.onWebcamError}
-          />
-          <Image src={screenshot} />
-          {error &&
+          {timer > 0 &&
+            <span>{timer}</span>
+          }
+          {!error &&
+            <React.Fragment>
+              {!photo &&
+                <Webcam
+                  audio={false}
+                  ref={this.setRef}
+                  height={350}
+                  width={350}
+                  screenshotWidth={350}
+                  screenshotFormat="image/jpeg"
+                  screenshotQuality={0.5}
+                  onUserMedia={this.onWebcam}
+                  onUserMediaError={this.onWebcamError}
+                />
+              }
+              {photo && <Image src={photo} />}
+            </React.Fragment>
+          }
+          {error && !confirming &&
             <Message warning icon='eye slash outline' header='Camera not available' content={error.message} />
           }
         </Modal.Content>
-        {screenshot && false &&
-          <Modal.Actions>
-            <Input type='text' placeholder='Comment?' action>
-              <input />
-              <Button positive content='Done' />
-            </Input>
-            <br />
-            <Button color='orange' content='Take again' onClick={this.takeAgain} />
-          </Modal.Actions>
-        }
-        {!screenshot && false &&
-          <Modal.Actions>
-            {!currentShift &&
-              <Button positive type='button' onClick={this.startWork}>
-                {timer > 0 ? timer : 'Start work'}
-              </Button>
-            }
-            {currentShift &&
-              <button type='button' onClick={this.stopWork}>Stop work</button>
-            }
-            <Button color='orange' type='button' onClick={this.props.onCancel}>Cancel</Button>
-          </Modal.Actions>
-        }
       </Modal>
     );
   }

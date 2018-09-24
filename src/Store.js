@@ -55,7 +55,7 @@ export default class Store {
   }
 
   isEmployeeWorking = employee => {
-    return this.currentShifts.findIndex(s => s.employee.id === employee.id) > -1 ? true : false;
+    return this.currentShifts.find(s => s.employee.id === employee.id) ? true : false;
   }
 
   setWeeklyReportStartDate = date => {
