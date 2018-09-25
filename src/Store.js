@@ -1,7 +1,8 @@
-import { auth, db } from './firebase-services';
+import { auth, db, storage } from './firebase-services';
 import { extendObservable } from 'mobx';
 import { getStartOfPreviousWeek } from './getStartOfPreviousWeek'
 import moment from 'moment';
+import { shortid } from 'shortid';
 
 export default class Store {
 
@@ -164,8 +165,16 @@ export default class Store {
       });
   }
 
-  startWork = employee => {
+  startWorkOffline = (employee, photoDataUrl, comment) => {
+    
+  }
+
+  startWork = (employee, comment, photo) => {
     return new Promise((resolve, reject) => {
+      const storageRef = storage.ref();
+      const fileId = shortid.generate();
+      const fileRef = storageRef.child(`accounts/${this.account.id}/shifts/${fileId}.jpg`);
+      fileRef.putString(photo, 'data_url').then()
       db.collection('accounts').doc(this.account.id).collection('shifts').add({
         employee: employee,
         start: { timestamp: new Date() },

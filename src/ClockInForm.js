@@ -57,8 +57,8 @@ class ClockInForm extends Component {
   }
 
   takeAgain = () => {
-    this.webcam.video.hidden = false;
-    this.setState({ screenshot: null });
+    // this.webcam.video.hidden = false;
+    this.setState({ photo: null, confirming: false });
     this.startCountdown();
   }
 
@@ -77,6 +77,7 @@ class ClockInForm extends Component {
       default:
         console.log('Unknown action')
     }
+    this.props.onClose();
   }
 
   componentWillUnmount() {
@@ -99,30 +100,32 @@ class ClockInForm extends Component {
           <Image avatar src={profilePicUrl} /> {employee.firstName}
         </Modal.Header>
         <Modal.Content>
-          {!confirming &&
-            <div className='clock-in-buttons'>
-              {!isWorking &&
-                <Button positive content='Start work' onClick={() => this.clockInOrOut('start')} />
-              }
-              {isWorking &&
-                <React.Fragment>
-                  <Button negative content='Finish work' onClick={() => this.clockInOrOut('stop')} />
-                  <Button color='orange' content='Leave temporarily' onClick={() => this.clockInOrOut('pause')} />
-                </React.Fragment>
-              }
-            </div>
-          }
-          {confirming &&
-            <div>
-              <Input fluid type='text' value={comment} onChange={this.handleChangeComment} placeholder='Add a comment?' />
-              <br />
-              <Button positive content='Done' onClick={this.confirm} />
-              {hasCamera && <Button basic content='Take again' onClick={this.takeAgain} />}
-            </div>
-          }
-          {timer > 0 &&
-            <span>{timer}</span>
-          }
+          <div className='clock-in-buttons'>
+            {!confirming && timer < 0 &&
+              <React.Fragment>
+                {!isWorking &&
+                  <Button positive content='Start work' onClick={() => this.clockInOrOut('start')} />
+                }
+                {isWorking &&
+                  <React.Fragment>
+                    <Button negative content='Finish work' onClick={() => this.clockInOrOut('stop')} />
+                    <Button color='orange' content='Leave temporarily' onClick={() => this.clockInOrOut('pause')} />
+                  </React.Fragment>
+                }
+              </React.Fragment>
+            }
+            {timer > 0 &&
+              <Button basic disabled content={`${timer}...`} />
+            }
+            {confirming &&
+              <React.Fragment>
+                <Input fluid type='text' value={comment} onChange={this.handleChangeComment} placeholder='Add a comment?' />
+                <br />
+                <Button positive content='Done' onClick={this.confirm} />
+                {hasCamera && <Button basic content='Take again' onClick={this.takeAgain} />}
+              </React.Fragment>
+            }
+          </div>
           {!error &&
             <React.Fragment>
               {!photo &&
