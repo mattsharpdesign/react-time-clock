@@ -1,8 +1,9 @@
-import { auth, db, storage } from './firebase-services';
+import { /* auth, */ db, storage } from './firebase-services';
 import { extendObservable } from 'mobx';
 import { getStartOfPreviousWeek } from './getStartOfPreviousWeek'
 import moment from 'moment';
 import { shortid } from 'shortid';
+import { auth } from './fake-auth';
 
 export default class Store {
 
@@ -23,7 +24,7 @@ export default class Store {
       loading: false,
     });
 
-    auth.onAuthStateChanged(user => {
+    /* auth.onAuthStateChanged(user => {
       this.authenticating = false;
       this.authenticated = user ? true : false;
       if (user) {
@@ -48,7 +49,7 @@ export default class Store {
         if (this.stopListeningToCurrentShifts) this.stopListeningToCurrentShifts();
         if (this.detachApprovalQueueListener) this.detachApprovalQueueListener();
       }
-    });
+    }); */
   }
 
   getEmployeeStatus = employee => {
@@ -166,7 +167,7 @@ export default class Store {
   }
 
   startWorkOffline = (employee, photoDataUrl, comment) => {
-    
+
   }
 
   startWork = (employee, comment, photo) => {

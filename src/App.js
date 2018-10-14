@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Link, NavLink, Route, Switch, Redirect } from 
 import TimeClock from './TimeClock';
 import Settings from './Settings';
 import { inject, observer } from 'mobx-react';
+import { auth } from './fake-auth';
 
 class App extends Component {
 
@@ -16,7 +17,8 @@ class App extends Component {
   }
 
   render() {
-    const { authenticated, authenticating, loadingSettings, user } = this.props.store;
+    const { /* authenticated, */authenticating, loadingSettings, user } = this.props.store;
+    const { authenticated } = auth;
     if (authenticating) return <Loader active content='Authenticating' />
     if (!authenticated) return <SignIn />
     if (loadingSettings) return <Loader active content='Loading settings' />

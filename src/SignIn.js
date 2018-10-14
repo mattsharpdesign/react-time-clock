@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { auth } from './firebase-services';
+import { auth } from './fake-auth';
 
 class SignIn extends Component {
   state = {
@@ -27,10 +27,16 @@ class SignIn extends Component {
       });
   }
 
+  handleSubmit = e => {
+    e.preventDefault();
+    const { email, password } = this.state;
+    auth.signIn(email, password);
+  }
+
   render() { 
     const { loading, error } = this.state;
     return (
-      <form onSubmit={this.signIn}>
+      <form onSubmit={this.handleSubmit}>
         <input type='email' placeholder='Email address' onChange={this.setEmail} />
         <input type='password' placeholder='Password' onChange={this.setPassword} />
         <button>Sign in</button>
