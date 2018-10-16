@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Icon, Image, Tab, Menu, Button, Container, Grid, Header } from 'semantic-ui-react';
+import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Input } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
 import { attachEmployeesListener, attachCurrentShiftsListener } from '../attachListeners';
 // import { inject, observer } from 'mobx-react';
 import './TimeClock.css'
 import placeholder from '../profile_placeholder.png';
+import { db, storage } from '../firebase-services';
+import shortid from 'shortid';
 
 class TimeClock extends Component {
   
@@ -17,6 +19,8 @@ class TimeClock extends Component {
     isClockInFormOpen: false,
     selectedEmployee: null,
     mountWebcam: true,
+    waitingForCamera: true,
+    event: {}
   }
 
   listeners = [];
@@ -55,6 +59,7 @@ class TimeClock extends Component {
   }
 
   onCameraStreamAcquired = () => {
+    this.setState({ waitingForCamera: false });
     this.unmountCameraInterval = setInterval(() => {
       if (!this.state.isClockInFormOpen) {
         this.setState({ mountWebcam: false });
@@ -67,18 +72,79 @@ class TimeClock extends Component {
     this.setState({ cameraError: error.message });
   }
 
+  handleChangeComment = (e, { name, value }) => this.setState({ comment: value })
+
+  registerEvent = (employee, eventType) => {
+    const imageSrc = this.webcam.getScreenshot();
+    const timestamp = new Date();
+    const event = { employee, eventType, timestamp, imageSrc }
+    this.setState({ event });
+    console.log('event in state', event)
+  }
+
+  cancelEvent = () => {
+    this.setState({ event: {} });
+  }
+
+  confirmEvent = () => {
+    const { comment, event } = this.state;
+    const { accountId } = this.props.user;
+    console.log(event);
+    if (event.imageSrc) {
+      const fileId = shortid.generate();
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(`accounts/${accountId}/shifts/${fileId}.jpg`);
+      fileRef.putString(event.imageSrc, 'data_url', { contentType: "image/jpeg" })
+        .then(snapshot => {
+          console.log('Image uploaded at:', snapshot.downloadURL)
+        })
+        .catch(error => console.error('Upload error:', error));
+    }
+    switch (event.eventType) {
+      case 'start':
+        db.collection('accounts').doc(accountId).collection('shifts').add({
+          employeeId: event.employee.id,
+          start: { timestamp: event.timestamp, comment: comment || null },
+          finish: null,
+          isApproved: false
+        }).then(docRef => {
+          console.log('Shift created with id', docRef.id);
+        }).catch(error => console.error(error));
+        break;
+      case 'finish':
+        const shift = this.state.currentShifts.find(shift => shift.employeeId === event.employee.id);
+        db.collection('accounts').doc(accountId).collection('shifts').doc(shift.id).set({
+          finish: {
+            timestamp: event.timestamp,
+            comment: comment || null
+          }
+        }, { merge: true }).catch(error => console.error('Error updating shift: ', error));
+        break;
+      default: 
+        console.warn('eventType was neither start nor finish');
+    }
+    this.setState({ event: {}, isClockInFormOpen: false, comment: '' });
+  }
+
   render() { 
     const { employees, currentShifts } = this.state;
-    const { cameraError, isClockInFormOpen, mountWebcam, screenshot, selectedEmployee } = this.state;
+    const { cameraError, comment, event, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
     };
+    const selectedEmployeeIsWorking = () => {
+      if (currentShifts.findIndex(s => s.employeeId === selectedEmployee.id) > -1) {
+        return true;
+      } else {
+        return false;
+      }
+    }
     function filteredEmployees(employees) {
       const here = [];
       const notHere = [];
       employees.forEach(e => {
-        const index = currentShifts.findIndex(s => s.employee.id === e.id);
+        const index = currentShifts.findIndex(s => s.employeeId === e.id);
         if (index > -1) {
           here.push(e);
         } else {
@@ -105,14 +171,10 @@ class TimeClock extends Component {
 
     return (
       <div>
-        {/* <Menu stackable>
-          <Menu.Item header>TimeClock</Menu.Item>
-        </Menu> */}
         <Container style={{ paddingTop: '1em' }}>
           {!isClockInFormOpen &&
             <Tab menu={{ pointing: true, size: 'massive' }} panes={panes} />
           }
-          {/* <div id='video-backdrop' style={{ visibility: isClockInFormOpen ? 'visible' : 'hidden' }}> */}
             {mountWebcam &&
               <Webcam
                 audio={false}
@@ -128,30 +190,34 @@ class TimeClock extends Component {
             }
             {isClockInFormOpen &&
               <div id='buttons-overlay'>
-                <Header as='h2' inverted color='teal'>
+                <Header as='h2' inverted>
                   <Image avatar src={profilePicUrl} /> {selectedEmployee.firstName}
                 </Header>
                 <Grid columns='equal' style={{ textAlign: 'center' }}>
                   <Grid.Column>
-                    <Button positive size='massive' onClick={this.capture} content='Start work' />
+                    {!selectedEmployeeIsWorking &&
+                      <Button positive size='massive' onClick={() => this.registerEvent(selectedEmployee, 'start')} content='Start work' />
+                    }
+                    {selectedEmployeeIsWorking &&
+                      <Button negative size='massive' onClick={() => this.registerEvent(selectedEmployee, 'finish')} content='Stop work' />
+                    }
                   </Grid.Column>
                   <Grid.Column>
-                    <Button basic negative size='massive' onClick={this.closeClockInForm} content='Cancel' />
+                    <Button basic color='orange' size='massive' onClick={this.closeClockInForm} content='Cancel' />
                   </Grid.Column>
                 </Grid>
               </div>
-              // <Menu inverted fixed='bottom' size='massive'>
-              //   <Menu.Item header>{selectedEmployee.firstName}</Menu.Item>
-              //   <Menu.Item><Button positive onClick={this.capture} content='Start work' /></Menu.Item>
-              //   <Menu.Item><Button basic negative onClick={this.closeClockInForm} content='Cancel' /></Menu.Item>
-              // </Menu>
             }
-          {/* </div> */}
-          {screenshot &&
+          {event.imageSrc &&
             <div id='screenshot-backdrop'>
-              <img src={screenshot} alt='' />
-
-              <button onClick={this.closeScreenshot}>Cancel</button>
+              <Image rounded centered src={event.imageSrc} alt='' />
+              <Form style={{ paddingTop: '2em' }}>
+                <Form.Input type='text' size='massive' placeholder='Add a comment?' value={comment} onChange={this.handleChangeComment} />
+                <Form.Group>
+                <Form.Button positive size='massive' onClick={this.confirmEvent} content='Done' />
+                <Form.Button basic color='orange' size='massive' onClick={this.cancelEvent} content='Retake photo' />
+                </Form.Group>
+              </Form>
             </div>
           }
           {cameraError &&

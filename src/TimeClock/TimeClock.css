@@ -12,7 +12,6 @@ video {
   padding-top: 2rem;
   padding-bottom: 2rem;
   background: rgba(0, 0, 0, 0.9);
-  /* text-align: center; */
   color: white;
 }
 
@@ -22,6 +21,8 @@ video {
   bottom: 0;
   left: 0;
   right: 0;
+  padding: 2em;
   background: white;
   text-align: center;
+  line-height: 2em;
 }
