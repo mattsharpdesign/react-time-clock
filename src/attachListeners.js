@@ -50,3 +50,30 @@ export function attachCurrentShiftsListener(accountId) {
     })
   );
 }
+
+export function attachApprovalQueueListener(accountId) {
+  this.listeners.push(db.collection('accounts').doc(accountId)
+    .collection('shifts')
+    .where('finish.timestamp', '>=', new Date(0))
+    .where('isApproved', '==', false)
+    .onSnapshot(snapshot => {
+      const shifts = this.state.approvalQueue;
+      snapshot.docChanges().forEach(change => {
+        switch (change.type) {
+          case 'added':
+            shifts.push({ ...change.doc.data(), id: change.doc.id });
+            break;
+          case 'modified':
+            shifts[change.oldIndex] = { ...change.doc.data(), id: change.doc.id };
+            break;
+          case 'removed':
+            shifts.splice(change.oldIndex, 1);
+            break;
+          default:
+            console.log('Undefined change detected:', change.type);
+        }
+      });
+      this.setState({ loadingApprovalQueue: false, approvalQueue: shifts });
+    })
+  );
+}

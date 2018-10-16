@@ -25,18 +25,17 @@ class App extends Component {
       if (authUser) {
         this.setState({ authenticated: true, loadingSettings: true });
         db.collection('users').doc(authUser.uid).get().then(doc => {
-          this.setState({ loadingSettings: false, user: doc.data() });
-          console.log('user in state', this.state.user);
+          this.setState({ user: doc.data() });
           // this.user = { ...doc.data(), id: doc.id };
-          // db.collection('accounts').doc(doc.data().accountId).get().then(doc => {
-          //   this.account = { ...doc.data(), id: doc.id };
-          //   this.loadingSettings = false;
-          //   this.attachEmployeesListener();
-          //   this.fetchCurrentShifts();
-          //   this.attachApprovalQueueListener();
-          //   this.setWeeklyReportStartDate();
+          db.collection('accounts').doc(doc.data().accountId).get().then(doc => {
+            this.account = { ...doc.data(), id: doc.id };
+            this.setState({ accountSettings: doc.data(), loadingSettings: false });
+            // this.attachEmployeesListener();
+            // this.fetchCurrentShifts();
+            // this.attachApprovalQueueListener();
+            // this.setWeeklyReportStartDate();
 
-          // });
+          });
         });
       } else {
         this.setState({ authenticated: false, user: null });
@@ -51,12 +50,12 @@ class App extends Component {
   }
 
   render() {
-    const { authenticated, loadingSettings, user, waitingForAuth } = this.state;
+    const { accountSettings, authenticated, loadingSettings, user, waitingForAuth } = this.state;
     if (waitingForAuth) return <Loader active content='Connecting to server' />
     if (!authenticated) return <SignIn />
     if (loadingSettings) return <Loader active content='Loading settings' />
     if (user.role === 'admin') {
-      return <Dashboard user={user} />
+      return <Dashboard user={user} accountSettings={accountSettings} />
     } else {
       return <TimeClock user={user} />
     }

@@ -6,14 +6,21 @@ import Employees from './Employees';
 import ApprovedShifts from './ApprovedShifts';
 import Settings from './Settings';
 import ApprovalQueue from './ApprovalQueue';
-import { attachEmployeesListener, attachCurrentShiftsListener } from '../attachListeners';
+import { attachEmployeesListener, attachCurrentShiftsListener, attachApprovalQueueListener } from '../attachListeners';
+import { updateShift } from '../updateShift';
+import { db } from '../firebase-services';
+import moment from 'moment';
+import { getStartOfPreviousWeek } from '../getStartOfPreviousWeek';
 
 class App extends Component {
   state = {
     loadingEmployees: true,
     loadingCurrentShifts: true,
+    loadingApprovalQueue: true,
     employees: [],
-    currentShifts: []
+    currentShifts: [],
+    approvedShifts: [],
+    approvalQueue: []
   }
 
   listeners = [];
@@ -22,13 +29,19 @@ class App extends Component {
     super(props);
     this.attachEmployeesListener = attachEmployeesListener.bind(this);
     this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
+    this.attachApprovalQueueListener = attachApprovalQueueListener.bind(this);
+    this.updateShift = updateShift.bind(this);
   }
 
   componentDidMount() {
     console.log('Dashboard did mount at', new Date());
-    const { user } = this.props;
+    const { user, accountSettings } = this.props;
+    const startDate = getStartOfPreviousWeek(accountSettings.weekStartsOn);
+    this.loadWeeklyReport(startDate);
+    // this.setState({ weeklyReportStartDate });
     this.attachEmployeesListener(user.accountId);
     this.attachCurrentShiftsListener(user.accountId);
+    this.attachApprovalQueueListener(user.accountId);
   }
 
   componentWillUnmount() {
@@ -37,9 +50,29 @@ class App extends Component {
 
   signOut = () => auth.signOut();
 
+  loadWeeklyReport = date => {
+    this.setState({ loadingApprovedShifts: true });
+    if (!date) date = this.state.weeklyReportStartDate;
+    var startDate = moment(date).startOf('day').toDate();
+    let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
+    console.log('Loading shifts starting at', startDate, 'ending at', endDate);
+    db.collection('accounts').doc(this.props.user.accountId).collection('shifts')
+      .where('isApproved', '==', true)
+      .where('start.timestamp', '>=', startDate)
+      .where('start.timestamp', '<=', endDate)
+      .get().then(snapshot => {
+        const shifts = [];
+        snapshot.docs.forEach(doc => {
+          console.log(doc.data());
+          shifts.push({ ...doc.data(), id: doc.id });
+        });
+        this.setState({ loadingApprovedShifts: false, weeklyReportStartDate: startDate, approvedShifts: shifts });
+      });
+  }
+
   render() { 
-    const { user } = this.props;
-    const { employees, loadingEmployees, loadingCurrentShifts } = this.state;
+    const { user, accountSettings } = this.props;
+    const { employees, approvalQueue, approvedShifts, loadingEmployees, loadingCurrentShifts, loadingApprovedShifts, loadingApprovalQueue, weeklyReportStartDate } = this.state;
     const isLoading = loadingEmployees || loadingCurrentShifts;
     return (
       <Router>
@@ -62,10 +95,20 @@ class App extends Component {
           <Container>
             <Loader active={isLoading} content='Loading data' />
             <Switch>
-              <Route path='/approval-queue' render={() => <ApprovalQueue />} />
-              <Route path='/approved-shifts' render={() => <ApprovedShifts />} />
-              <Route path='/employees' render={() => <Employees employees={employees} />} />
-              <Route path='/settings' render={() => <Settings />} />
+              <Route path='/approval-queue' render={() => <ApprovalQueue user={user} approvalQueue={approvalQueue} loadingApprovalQueue={loadingApprovalQueue} />} />
+              <Route path='/approved-shifts' render={() => (
+                <ApprovedShifts 
+                  user={user} 
+                  startDate={weeklyReportStartDate} 
+                  shifts={approvedShifts}
+                  loading={loadingApprovedShifts}
+                  reload={this.loadWeeklyReport} 
+                  employees={employees} 
+                  accountSettings={accountSettings} 
+                />
+              )} />
+              <Route path='/employees' render={() => <Employees user={user} employees={employees} />} />
+              <Route path='/settings' render={() => <Settings user={user} accountSettings={accountSettings} />} />
               <Redirect to='/employees' />
             </Switch>
           </Container>

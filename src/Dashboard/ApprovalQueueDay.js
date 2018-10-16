@@ -4,6 +4,7 @@ import moment from 'moment';
 import ApprovalQueueEmployee from './ApprovalQueueEmployee';
 // import { inject, observer } from 'mobx-react';
 // import { databaseLayer } from '.';
+import { approveSelectedShifts } from '../updateShift'; 
 
 class ApprovalQueueDay extends Component {
   state = {
@@ -13,7 +14,7 @@ class ApprovalQueueDay extends Component {
   getEmployees = () => {
     let employees = [];
     this.props.shifts.forEach(shift => {
-      const found = employees.find(e => e.id === shift.employee.id);
+      const found = employees.find(e => e.id === shift.employeeId);
       if (!found) {
         employees.push(shift.employee)
       }
@@ -36,7 +37,7 @@ class ApprovalQueueDay extends Component {
   approveSelected = () => {
     this.setState({ loading: true });
     console.log(this.state.checkedShifts);
-    this.props.store.approveSelectedShifts(this.state.checkedShifts)
+    approveSelectedShifts(this.props.user.accountId, this.state.checkedShifts, true)
       .then(() => {
         this.setState({ loading: false, checkedShifts: [] });
         /* don't need to reload if we use Firebase realtime stuff */
@@ -51,10 +52,9 @@ class ApprovalQueueDay extends Component {
   unapproveSelected = () => {
     this.setState({ loading: true });
     console.log(this.state.checkedShifts);
-    this.props.store.unapproveSelectedShifts(this.state.checkedShifts)
+    approveSelectedShifts(this.props.user.accountId, this.state.checkedShifts, false)
       .then(() => {
         this.setState({ loading: false, checkedShifts: [] });
-        /* don't need to reload if we use Firebase realtime stuff */
         this.props.onReload(); 
       })
       .catch(error => {
@@ -83,7 +83,7 @@ class ApprovalQueueDay extends Component {
           </Table.Header>
           <Table.Body>
             {this.getEmployees().map(employee => (
-              <ApprovalQueueEmployee key={employee.id} db={this.props.db} user={this.props.user} employee={employee} shifts={shifts.filter(s => s.employee.id === employee.id)} toggleChecked={this.toggleChecked} />
+              <ApprovalQueueEmployee key={employee.id} isApprovedShifts={this.props.isApprovedShifts} db={this.props.db} user={this.props.user} employee={employee} shifts={shifts.filter(s => s.employee.id === employee.id)} toggleChecked={this.toggleChecked} />
             ))}
           </Table.Body>
         </Table>

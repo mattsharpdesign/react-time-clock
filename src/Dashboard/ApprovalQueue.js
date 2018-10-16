@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import ApprovalQueueDay from './ApprovalQueueDay';
-import { Icon, Menu/* , Loader */ } from 'semantic-ui-react';
+import { Icon, /* Loader,  */Menu, Message } from 'semantic-ui-react';
 // import { inject, observer } from 'mobx-react';
 
 class ApprovalQueue extends Component {
@@ -20,7 +20,9 @@ class ApprovalQueue extends Component {
   }
 
   render() { 
-    const shifts = this.props.store.approvalQueue;
+    const { user } = this.props;
+    const shifts = this.props.approvalQueue;
+    const loading = this.props.loadingApprovalQueue;
     function datestamps() {
       let datestamps = [];
       shifts.forEach(shift => {
@@ -41,12 +43,21 @@ class ApprovalQueue extends Component {
           <Menu.Item header>Approval Queue</Menu.Item>
           <Menu.Item position='right' onClick={this.loadData}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
+        {!loading && !shifts.length &&
+          <Message positive>
+            <Message.Header>Congratulations!</Message.Header>
+            <p>
+              The approval queue is empty
+            </p>
+          </Message>
+        }
         {datestamps().map(datestamp => (
           <ApprovalQueueDay 
             key={datestamp} 
             date={moment(datestamp).toDate()}
             shifts={filterShifts(datestamp)} 
             isApprovalQueue={true}
+            user={user}
           />
         ))}
       </div>

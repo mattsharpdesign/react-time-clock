@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { timestampToHoursAndMinutes } from '../date-functions';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Popup, Image } from 'semantic-ui-react';
 
 class ApprovalQueueShiftEventCell extends Component {
   state = {  }
@@ -9,7 +9,15 @@ class ApprovalQueueShiftEventCell extends Component {
     return (
       <td>
         {timestampToHoursAndMinutes(event.timestamp)}
-        &nbsp;<Icon name='camera' />
+        &nbsp;
+        <Popup on='click' trigger={<Icon name={event.screenshotData ? 'camera' : 'warning sign'} />}>
+          {event.screenshotData &&
+            <Image src={event.screenshotData} alt='' />
+          }
+          {!event.screenshotData &&
+            <span>No screenshot data found</span>
+          }
+        </Popup>
         {event.comment &&
           <Icon name='info circle' title={event.comment} />
         }

@@ -5,6 +5,7 @@ import { Table, Label, Input, /* Loader,  */Checkbox } from 'semantic-ui-react';
 import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions';
 // import { inject, observer } from 'mobx-react';
 // import { databaseLayer } from './index';
+import { updateShift } from '../updateShift';
 
 class ApprovalQueueShift extends Component {
   constructor(props) {
@@ -27,7 +28,7 @@ class ApprovalQueueShift extends Component {
     this.setState({ saving: true });
     const { shift } = this.props;
     const { comment, unpaidMinutes } = this.state;
-    this.props.store.updateShift(shift, {
+    updateShift(this.props.user.accountId, shift, {
         supervisorComment: comment,
         unpaidMinutes: unpaidMinutes,
       }).then(() => {
@@ -53,10 +54,18 @@ class ApprovalQueueShift extends Component {
         </Table.Cell>
         <ApprovalQueueShiftEventCell event={shift.start} />
         <ApprovalQueueShiftEventCell event={shift.finish} />
-        <Table.Cell><Input fluid size='tiny' type='number' value={unpaidMinutes} onChange={this.handleChangeUnpaidMinutes} onBlur={this.updateShift} /></Table.Cell>
+        <Table.Cell>
+          {!this.props.isApprovedShifts &&
+            <Input fluid size='tiny' type='number' value={unpaidMinutes} onChange={this.handleChangeUnpaidMinutes} onBlur={this.updateShift} />
+          }
+          {this.props.isApprovedShifts && <span>{unpaidMinutes}</span>}
+        </Table.Cell>
         <Table.Cell>{minutesToHoursAndMinutes(totalMinutes(shift) - unpaidMinutes)}</Table.Cell>
         <Table.Cell>
-          <Input size='tiny' value={comment} onChange={this.handleChangeComment} onBlur={this.updateShift} />
+          {!this.props.isApprovedShifts &&
+            <Input size='tiny' value={comment} onChange={this.handleChangeComment} onBlur={this.updateShift} />
+          }
+          {this.props.isApprovedShifts && <span>{comment}</span>}
         </Table.Cell>
         <Table.Cell>
           {/* <Loader inline size='tiny' active={saving} /> */}

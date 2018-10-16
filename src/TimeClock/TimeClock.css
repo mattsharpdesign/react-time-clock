@@ -4,24 +4,22 @@ video {
   margin-top: 6em;
 }
 
-#buttons-overlay {
+#buttons-overlay, #screenshot-backdrop {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+  padding: 2em;
+}
+
+#buttons-overlay {
   background: rgba(0, 0, 0, 0.9);
   color: white;
 }
 
+
 #screenshot-backdrop {
-  position: absolute;
-  top: 0;
   bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 2em;
   background: white;
   text-align: center;
   line-height: 2em;

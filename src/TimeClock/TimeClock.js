@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Input } from 'semantic-ui-react';
+import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Popup } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
 import { attachEmployeesListener, attachCurrentShiftsListener } from '../attachListeners';
 // import { inject, observer } from 'mobx-react';
 import './TimeClock.css'
 import placeholder from '../profile_placeholder.png';
-import { db, storage } from '../firebase-services';
+import { auth, db } from '../firebase-services';
 import shortid from 'shortid';
+import localforage from 'localforage';
 
 class TimeClock extends Component {
   
@@ -25,12 +26,15 @@ class TimeClock extends Component {
 
   listeners = [];
   unmountCameraInterval = null;
+  store;
   
   constructor(props) {
     super(props);
     this.attachEmployeesListener = attachEmployeesListener.bind(this);
     this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
   }
+
+  signOut = () => auth.signOut();
 
   setRef = webcam => {
     this.webcam = webcam;
@@ -39,6 +43,7 @@ class TimeClock extends Component {
   componentDidMount() {
     console.log('TimeClock did mount at', new Date());
     const { user } = this.props;
+    this.store = localforage.createInstance({ name: 'timeclock-temp-data-storage' })
     this.attachEmployeesListener(user.accountId);
     this.attachCurrentShiftsListener(user.accountId);
   }
@@ -74,10 +79,10 @@ class TimeClock extends Component {
 
   handleChangeComment = (e, { name, value }) => this.setState({ comment: value })
 
-  registerEvent = (employee, eventType) => {
-    const imageSrc = this.webcam.getScreenshot();
+  createEvent = (employee, eventType) => {
+    const screenshotData = this.webcam.getScreenshot();
     const timestamp = new Date();
-    const event = { employee, eventType, timestamp, imageSrc }
+    const event = { employee, eventType, timestamp, screenshotData }
     this.setState({ event });
     console.log('event in state', event)
   }
@@ -90,25 +95,30 @@ class TimeClock extends Component {
     const { comment, event } = this.state;
     const { accountId } = this.props.user;
     console.log(event);
-    if (event.imageSrc) {
-      const fileId = shortid.generate();
-      const storageRef = storage.ref();
-      const fileRef = storageRef.child(`accounts/${accountId}/shifts/${fileId}.jpg`);
-      fileRef.putString(event.imageSrc, 'data_url', { contentType: "image/jpeg" })
-        .then(snapshot => {
-          console.log('Image uploaded at:', snapshot.downloadURL)
-        })
-        .catch(error => console.error('Upload error:', error));
-    }
+    const tempId = shortid.generate();
+    this.store.setItem(tempId, event, () => console.log('event saved to temp storage', event));
+    // if (event.imageSrc) {
+    //   const fileId = shortid.generate();
+    //   const storageRef = storage.ref();
+    //   const fileRef = storageRef.child(`accounts/${accountId}/shifts/${fileId}.jpg`);
+    //   fileRef.putString(event.imageSrc, 'data_url', { contentType: "image/jpeg" })
+    //     .then(snapshot => {
+    //       console.log(snapshot);
+    //       console.log('Image uploaded at:', snapshot.ref.downloadURL)
+    //     })
+    //     .catch(error => console.error('Upload error:', error));
+    // }
     switch (event.eventType) {
       case 'start':
         db.collection('accounts').doc(accountId).collection('shifts').add({
           employeeId: event.employee.id,
-          start: { timestamp: event.timestamp, comment: comment || null },
+          employee: event.employee,
+          start: { timestamp: event.timestamp, comment: comment || null, screenshotData: event.screenshotData || null },
           finish: null,
           isApproved: false
         }).then(docRef => {
           console.log('Shift created with id', docRef.id);
+          this.store.removeItem(tempId, () => console.log('temp item removed'));
         }).catch(error => console.error(error));
         break;
       case 'finish':
@@ -116,9 +126,12 @@ class TimeClock extends Component {
         db.collection('accounts').doc(accountId).collection('shifts').doc(shift.id).set({
           finish: {
             timestamp: event.timestamp,
-            comment: comment || null
+            comment: comment || null,
+            screenshotData: event.screenshotData || null,
           }
-        }, { merge: true }).catch(error => console.error('Error updating shift: ', error));
+        }, { merge: true }).then(() => {
+          this.store.removeItem(tempId, () => console.log('temp item removed'));
+        }).catch(error => console.error('Error updating shift: ', error));
         break;
       default: 
         console.warn('eventType was neither start nor finish');
@@ -128,7 +141,7 @@ class TimeClock extends Component {
 
   render() { 
     const { employees, currentShifts } = this.state;
-    const { cameraError, comment, event, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
+    const { cameraError, comment, event, isClockInFormOpen, mountWebcam, selectedEmployee } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
@@ -161,56 +174,54 @@ class TimeClock extends Component {
         <Menu.Item key={1} color='green'>
           <Icon name='sign-in' /> Clock In
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup employees={notHere} onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={notHere} onSelect={this.openClockInForm} /> },
       { menuItem: (
         <Menu.Item key={2} color='red'>
           <Icon name='sign-out' /> Clock Out
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup employees={here} onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={here} onSelect={this.openClockInForm} /> },
     ];
 
     return (
       <div>
         <Container style={{ paddingTop: '1em' }}>
-          {!isClockInFormOpen &&
-            <Tab menu={{ pointing: true, size: 'massive' }} panes={panes} />
+          <Tab menu={{ pointing: true, size: 'massive' }} panes={panes} />
+          {mountWebcam &&
+            <Webcam
+              audio={false}
+              onUserMedia={this.onCameraStreamAcquired}
+              onUserMediaError={this.onCameraError}
+              ref={this.setRef}
+              screenshotFormat="image/jpeg"
+              screenshotQuality={0.6}
+              screenshotWidth={350}
+              style={{ visibility: isClockInFormOpen ? 'visible' : 'hidden' }}
+              videoConstraints={videoConstraints}
+            />
           }
-            {mountWebcam &&
-              <Webcam
-                audio={false}
-                onUserMedia={this.onCameraStreamAcquired}
-                onUserMediaError={this.onCameraError}
-                ref={this.setRef}
-                screenshotFormat="image/jpeg"
-                screenshotQuality={0.6}
-                screenshotWidth={350}
-                style={{ visibility: isClockInFormOpen ? 'visible' : 'hidden' }}
-                videoConstraints={videoConstraints}
-              />
-            }
-            {isClockInFormOpen &&
-              <div id='buttons-overlay'>
-                <Header as='h2' inverted>
-                  <Image avatar src={profilePicUrl} /> {selectedEmployee.firstName}
-                </Header>
-                <Grid columns='equal' style={{ textAlign: 'center' }}>
-                  <Grid.Column>
-                    {!selectedEmployeeIsWorking &&
-                      <Button positive size='massive' onClick={() => this.registerEvent(selectedEmployee, 'start')} content='Start work' />
-                    }
-                    {selectedEmployeeIsWorking &&
-                      <Button negative size='massive' onClick={() => this.registerEvent(selectedEmployee, 'finish')} content='Stop work' />
-                    }
-                  </Grid.Column>
-                  <Grid.Column>
-                    <Button basic color='orange' size='massive' onClick={this.closeClockInForm} content='Cancel' />
-                  </Grid.Column>
-                </Grid>
-              </div>
-            }
-          {event.imageSrc &&
+          {isClockInFormOpen &&
+            <div id='buttons-overlay'>
+              <Header as='h2' inverted>
+                <Image avatar src={profilePicUrl} /> {selectedEmployee.firstName}
+              </Header>
+              <Grid columns='equal' style={{ textAlign: 'center' }}>
+                <Grid.Column>
+                  {!selectedEmployeeIsWorking() &&
+                    <Button positive size='massive' onClick={() => this.createEvent(selectedEmployee, 'start')} content='Start work' />
+                  }
+                  {selectedEmployeeIsWorking() &&
+                    <Button negative size='massive' onClick={() => this.createEvent(selectedEmployee, 'finish')} content='Stop work' />
+                  }
+                </Grid.Column>
+                <Grid.Column>
+                  <Button basic color='orange' size='massive' onClick={this.closeClockInForm} content='Cancel' />
+                </Grid.Column>
+              </Grid>
+            </div>
+          }
+          {event.screenshotData &&
             <div id='screenshot-backdrop'>
-              <Image rounded centered src={event.imageSrc} alt='' />
+              <Image rounded centered src={event.screenshotData} alt='' />
               <Form style={{ paddingTop: '2em' }}>
                 <Form.Input type='text' size='massive' placeholder='Add a comment?' value={comment} onChange={this.handleChangeComment} />
                 <Form.Group>
@@ -224,6 +235,14 @@ class TimeClock extends Component {
             <div>Camera error: {cameraError}</div>
           }
         </Container>
+        <Menu fixed='bottom' inverted>
+          <Popup 
+              on='click' 
+              trigger={<Menu.Item>{this.props.user.email}</Menu.Item>} 
+            >
+              <Button negative size='large' onClick={this.signOut} content='Disconnect app' />
+            </Popup>
+        </Menu>
       </div>
     );
   }

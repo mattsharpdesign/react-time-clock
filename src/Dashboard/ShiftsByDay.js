@@ -31,6 +31,8 @@ class ShiftsByDay extends Component {
             shifts={filterShifts(datestamp)} 
             isApprovedShifts={true} 
             onReload={this.props.onReload}
+            readonly={this.props.readonly}
+            user={this.props.user}
           />
         ))}
       </div>

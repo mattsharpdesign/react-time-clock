@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { auth } from './firebase-services';
+import { Form, Button, Input } from 'semantic-ui-react';
 
 class SignIn extends Component {
   state = {
@@ -41,13 +42,13 @@ class SignIn extends Component {
   render() { 
     const { loading, error } = this.state;
     return (
-      <form onSubmit={this.signIn}>
-        <input type='email' placeholder='Email address' onChange={this.setEmail} />
-        <input type='password' placeholder='Password' onChange={this.setPassword} />
-        <button>Sign in</button>
+      <Form onSubmit={this.signIn} loading={loading}>
+        <Input type='email' placeholder='Email address' onChange={this.setEmail} />
+        <Input type='password' placeholder='Password' onChange={this.setPassword} />
+        <Button positive content='Sign in' />
         {loading && <span>Loading...</span>}
         {error && <em>{error.message}</em>}
-      </form>
+      </Form>
     );
   }
 }

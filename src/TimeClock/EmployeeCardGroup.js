@@ -5,7 +5,8 @@ import EmployeeCard from './EmployeeCard';
 class EmployeeCardGroup extends Component {
   state = {  }
   render() { 
-    const { employees, onSelect } = this.props;
+    const { employees, onSelect, visible } = this.props;
+    if (!visible) return null;
     return (
       <Card.Group style={{ paddingTop: '2em' }}>
         {employees.map(e => (

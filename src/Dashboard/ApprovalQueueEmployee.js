@@ -18,7 +18,7 @@ class ApprovalQueueEmployee extends Component {
     return (
       <React.Fragment>
         {shifts.map((shift, index) => (
-          <ApprovalQueueShift key={shift.id} db={this.props.db} employee={employee} shift={shift} isFirst={index === 0} toggleChecked={this.props.toggleChecked} />
+          <ApprovalQueueShift key={shift.id} isApprovedShifts={this.props.isApprovedShifts} user={this.props.user} db={this.props.db} employee={employee} shift={shift} isFirst={index === 0} toggleChecked={this.props.toggleChecked} />
         ))}
         {shifts.length > 1 &&
           <Table.Row active>
