@@ -3,6 +3,7 @@ import { db } from './firebase-services';
 export function attachEmployeesListener(accountId) {
   this.listeners.push(db.collection('accounts').doc(accountId)
     .collection('employees')
+    .orderBy('lastName')
     .onSnapshot(snapshot => {
       const { employees } = this.state;
       snapshot.docChanges().forEach(change => {

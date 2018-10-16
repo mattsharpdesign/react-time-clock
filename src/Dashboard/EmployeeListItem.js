@@ -16,11 +16,11 @@ class EmployeeListItem extends Component {
       'Coming back': 'coming-back',
     }
     return (
-      <List.Item title={e.id}>
+      <List.Item title={e.id} onClick={() => this.props.onSelect(e)}>
         <Image avatar src={profilePicUrl} size='tiny' />
         <List.Content>
           <List.Header as='h3'>{e.lastName}, {e.firstName}</List.Header>
-          <List.Description className={classes[status]}>{status}</List.Description>
+          {/* <List.Description className={classes[status]}>{status}</List.Description> */}
         </List.Content>
       </List.Item>
     );

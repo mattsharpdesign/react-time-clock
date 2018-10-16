@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import SignIn from './SignIn';
+import SignInForm from './SignInForm';
 import { Loader } from 'semantic-ui-react';
 import { auth, db } from './firebase-services';
 import Dashboard from './Dashboard/App';
@@ -52,7 +52,7 @@ class App extends Component {
   render() {
     const { accountSettings, authenticated, loadingSettings, user, waitingForAuth } = this.state;
     if (waitingForAuth) return <Loader active content='Connecting to server' />
-    if (!authenticated) return <SignIn />
+    if (!authenticated) return <SignInForm />
     if (loadingSettings) return <Loader active content='Loading settings' />
     if (user.role === 'admin') {
       return <Dashboard user={user} accountSettings={accountSettings} />

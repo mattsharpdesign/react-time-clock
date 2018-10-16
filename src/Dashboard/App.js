@@ -63,7 +63,6 @@ class App extends Component {
       .get().then(snapshot => {
         const shifts = [];
         snapshot.docs.forEach(doc => {
-          console.log(doc.data());
           shifts.push({ ...doc.data(), id: doc.id });
         });
         this.setState({ loadingApprovedShifts: false, weeklyReportStartDate: startDate, approvedShifts: shifts });
