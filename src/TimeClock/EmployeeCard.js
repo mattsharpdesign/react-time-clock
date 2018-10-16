@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Card, Image } from 'semantic-ui-react';
-import placeholder from './profile_placeholder.png';
-import { inject, observer } from 'mobx-react';
+import placeholder from '../profile_placeholder.png';
+// import { inject, observer } from 'mobx-react';
 
 class EmployeeCard extends Component {
   state = {  }
@@ -13,11 +13,12 @@ class EmployeeCard extends Component {
         <Image src={profilePicUrl} />
         <Card.Content>
           <Card.Header>{employee.lastName}, {employee.firstName}</Card.Header>
-          <Card.Meta>{this.props.store.getEmployeeStatus(employee)}</Card.Meta>
+          <Card.Meta>TODO: employee status</Card.Meta>
         </Card.Content>
       </Card>
     );
   }
 }
  
-export default inject('store')(observer(EmployeeCard));
+// export default inject('store')(observer(EmployeeCard));
+export default EmployeeCard;

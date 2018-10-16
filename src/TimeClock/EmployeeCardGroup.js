@@ -7,7 +7,7 @@ class EmployeeCardGroup extends Component {
   render() { 
     const { employees, onSelect } = this.props;
     return (
-      <Card.Group>
+      <Card.Group style={{ paddingTop: '2em' }}>
         {employees.map(e => (
           <EmployeeCard key={e.id} employee={e} onSelect={onSelect} />
         ))}

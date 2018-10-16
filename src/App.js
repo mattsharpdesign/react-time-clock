@@ -1,59 +1,67 @@
 import React, { Component } from 'react';
 import SignIn from './SignIn';
-import Employees from './Employees';
-import ApprovalQueue from './ApprovalQueue';
-import { Container, Loader, Menu, Popup, List } from 'semantic-ui-react';
-import ApprovedShifts from './ApprovedShifts';
-import { BrowserRouter as Router, Link, NavLink, Route, Switch, Redirect } from 'react-router-dom';
-import TimeClock from './TimeClock';
-import Settings from './Settings';
-import { inject, observer } from 'mobx-react';
+import { Loader } from 'semantic-ui-react';
+import { auth, db } from './firebase-services';
+import Dashboard from './Dashboard/App';
+import TimeClock from './TimeClock/TimeClock';
+// import { inject, observer } from 'mobx-react';
+
+window.signOut = () => auth.signOut();
 
 class App extends Component {
 
+  state = {
+    waitingForAuth: true,
+    authenticated: false,
+  };
+
+  dbRef; // firebase firestore ref for this account
+
+  componentDidMount() {
+    console.log('App did mount at', new Date());
+    auth.onAuthStateChanged(authUser => {
+      console.log('authStateChanged')
+      this.setState({ waitingForAuth: false });
+      if (authUser) {
+        this.setState({ authenticated: true, loadingSettings: true });
+        db.collection('users').doc(authUser.uid).get().then(doc => {
+          this.setState({ loadingSettings: false, user: doc.data() });
+          console.log('user in state', this.state.user);
+          // this.user = { ...doc.data(), id: doc.id };
+          // db.collection('accounts').doc(doc.data().accountId).get().then(doc => {
+          //   this.account = { ...doc.data(), id: doc.id };
+          //   this.loadingSettings = false;
+          //   this.attachEmployeesListener();
+          //   this.fetchCurrentShifts();
+          //   this.attachApprovalQueueListener();
+          //   this.setWeeklyReportStartDate();
+
+          // });
+        });
+      } else {
+        this.setState({ authenticated: false, user: null });
+        // empty all data arrays, stop listening to database etc
+      }
+    });
+  }
+  
   signOut = () => {
-    this.props.store.signOut();
+    // this.props.store.signOut();
+    auth.signOut();
   }
 
   render() {
-    const { authenticated, authenticating, loadingSettings, user } = this.props.store;
-    if (authenticating) return <Loader active content='Authenticating' />
+    const { authenticated, loadingSettings, user, waitingForAuth } = this.state;
+    if (waitingForAuth) return <Loader active content='Connecting to server' />
     if (!authenticated) return <SignIn />
     if (loadingSettings) return <Loader active content='Loading settings' />
-    return (
-      <Router>
-        <div>
-          <Menu stackable>
-            <Menu.Item header>TimeKeeper</Menu.Item>
-            <Menu.Item as={NavLink} to='/' exact>Home</Menu.Item>
-            <Menu.Item as={NavLink} to='/current-shifts'>Current Shifts</Menu.Item>
-            <Menu.Item as={NavLink} to='/approval-queue'>Approval Queue</Menu.Item>
-            <Menu.Item as={NavLink} to='/approved-shifts'>Approved Shifts</Menu.Item>
-            <Menu.Item as={NavLink} to='/employees'>Employees</Menu.Item>
-            <Popup 
-              on='click' 
-              trigger={<Menu.Item position='right'>{user.email}</Menu.Item>} 
-            >
-              <List relaxed='very'>
-                <List.Item as={Link} to='/settings'>Settings</List.Item>
-                <List.Item as='a' onClick={this.signOut}>Sign out</List.Item>
-              </List>
-            </Popup>
-          </Menu>
-          <Container>
-            <Switch>
-              <Route path='/' exact render={() => <TimeClock />} />
-              <Route path='/approval-queue' render={() => <ApprovalQueue />} />
-              <Route path='/approved-shifts' render={() => <ApprovedShifts />} />
-              <Route path='/employees' render={() => <Employees />} />
-              <Route path='/settings' render={() => <Settings />} />
-              <Redirect to='/' />
-            </Switch>
-          </Container>
-        </div>
-      </Router>
-    );
+    if (user.role === 'admin') {
+      return <Dashboard user={user} />
+    } else {
+      return <TimeClock user={user} />
+    }
   }
 }
 
-export default inject('store')(observer(App));
+// export default inject('store')(observer(App));
+export default App;

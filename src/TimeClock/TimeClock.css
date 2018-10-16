@@ -1,0 +1,27 @@
+video {
+  width: 100%;
+  height: 100%;
+  margin-top: 6em;
+}
+
+#buttons-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  background: rgba(0, 0, 0, 0.9);
+  /* text-align: center; */
+  color: white;
+}
+
+#screenshot-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  text-align: center;
+}

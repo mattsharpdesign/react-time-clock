@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { /* Icon, Loader,  */Menu, List } from 'semantic-ui-react';
 import EmployeeListItem from './EmployeeListItem';
-import { inject, observer } from 'mobx-react';
+// import { inject, observer } from 'mobx-react';
 
 class Employees extends Component {
-  /* state = {
+  state = {
     employees: [],
-  } */
+  }
 
   componentDidMount() {
     console.log('Employees did mount');
@@ -22,11 +22,9 @@ class Employees extends Component {
   } */
 
   render() { 
-    // const { employees, isLoadingCurrentShifts, isloadingEmployees } = this.state;
-    const { employees } = this.props.store;
+    const { employees } = this.props;
     return (
       <div>
-        {/* <Loader active={loading} content='Loading employees' /> */}
         <Menu secondary>
           <Menu.Item header>Manage Your Employees</Menu.Item>
           {/* <Menu.Item position='right' onClick={this.refresh}><Icon name='refresh' /> Reload</Menu.Item> */}
@@ -39,4 +37,5 @@ class Employees extends Component {
   }
 }
  
-export default inject('store')(observer(Employees));
+// export default inject('store')(observer(Employees));
+export default Employees;

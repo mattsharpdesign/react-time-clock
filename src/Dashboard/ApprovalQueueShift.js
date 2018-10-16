@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { minutesToHoursAndMinutes } from './date-functions';
+import { minutesToHoursAndMinutes } from '../date-functions';
 import ApprovalQueueShiftEventCell from './ApprovalQueueShiftEventCell';
 import { Table, Label, Input, /* Loader,  */Checkbox } from 'semantic-ui-react';
-import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
-import { inject, observer } from 'mobx-react';
+import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions';
+// import { inject, observer } from 'mobx-react';
 // import { databaseLayer } from './index';
 
 class ApprovalQueueShift extends Component {
@@ -69,4 +69,5 @@ class ApprovalQueueShift extends Component {
   }
 }
  
-export default inject('store')(observer(ApprovalQueueShift));
+// export default inject('store')(observer(ApprovalQueueShift));
+export default ApprovalQueueShift;

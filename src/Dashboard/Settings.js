@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Segment, Header, List, Popup } from 'semantic-ui-react';
 import moment from 'moment';
-import { inject, observer } from 'mobx-react';
+// import { inject, observer } from 'mobx-react';
 
 class Settings extends Component {
   state = {  }
@@ -29,4 +29,5 @@ class Settings extends Component {
   }
 }
  
-export default inject('store', 'appVersion')(observer(Settings));
+// export default inject('store', 'appVersion')(observer(Settings));
+export default Settings;

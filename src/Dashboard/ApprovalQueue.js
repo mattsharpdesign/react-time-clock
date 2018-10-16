@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import ApprovalQueueDay from './ApprovalQueueDay';
 import { Icon, Menu/* , Loader */ } from 'semantic-ui-react';
-import { inject, observer } from 'mobx-react';
+// import { inject, observer } from 'mobx-react';
 
 class ApprovalQueue extends Component {
   
@@ -54,4 +54,5 @@ class ApprovalQueue extends Component {
   }
 }
  
-export default inject('store')(observer(ApprovalQueue));
+// export default inject('store')(observer(ApprovalQueue));
+export default ApprovalQueue;

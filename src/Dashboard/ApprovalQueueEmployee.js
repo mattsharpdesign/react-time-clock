@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Table } from 'semantic-ui-react';
 import ApprovalQueueShift from './ApprovalQueueShift';
-import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
-import { minutesToHoursAndMinutes } from './date-functions';
+import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions';
+import { minutesToHoursAndMinutes } from '../date-functions';
 
 class ApprovalQueueEmployee extends Component {
   state = {  }

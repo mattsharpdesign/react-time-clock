@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Table } from 'semantic-ui-react';
 import moment from 'moment';
-import { totalMinutes, getUnpaidMinutes } from './shift-time-functions';
-import { minutesToHoursAndMinutes } from './date-functions';
+import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions';
+import { minutesToHoursAndMinutes } from '../date-functions';
 import { observer } from 'mobx-react';
 
 class WeeklyReport extends Component {

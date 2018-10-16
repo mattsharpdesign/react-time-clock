@@ -9,12 +9,23 @@ class SignIn extends Component {
     error: null
   }
 
+  componentDidMount() {
+    window.signInOffice = () => {
+      this.setState({ email: 'office@mattsharpdesign.com', password: 'dev 9000 mako' });
+      this.signIn(null);
+    }
+    window.signInFactory = () => {
+      this.setState({ email: 'factory@mattsharpdesign.com', password: 'dev 600 hikoi' });
+      this.signIn(null);
+    }
+  }
+
   setEmail = e => this.setState({ email: e.target.value });
 
   setPassword = e => this.setState({ password: e.target.value });
 
   signIn = e => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     this.setState({ loading: true, error: null });
     const { email, password } = this.state;
     auth.signInWithEmailAndPassword(email, password)

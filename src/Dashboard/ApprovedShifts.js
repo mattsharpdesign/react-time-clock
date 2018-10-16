@@ -5,7 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ShiftsByDay from './ShiftsByDay';
 import WeeklyReport from './WeeklyReport';
-import { inject, observer } from 'mobx-react';
+// import { inject, observer } from 'mobx-react';
 
 class ApprovedShifts extends Component {
   
@@ -42,4 +42,5 @@ class ApprovedShifts extends Component {
   }
 }
  
-export default inject('store')(observer(ApprovedShifts));
+// export default inject('store')(observer(ApprovedShifts));
+export default ApprovedShifts;

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { timestampToHoursAndMinutes } from './date-functions';
+import { timestampToHoursAndMinutes } from '../date-functions';
 import { Icon } from 'semantic-ui-react';
 
 class ApprovalQueueShiftEventCell extends Component {

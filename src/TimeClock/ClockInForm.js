@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import placeholder from './profile_placeholder.png';
+import placeholder from '../profile_placeholder.png';
 import { Button, Image, Input, Modal, Message/* , Divider */ } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 
@@ -15,6 +15,10 @@ class ClockInForm extends Component {
   setRef = webcam => {
     this.webcam = webcam;
   };
+
+  componentDidMount() {
+    console.log('ClockInForm did mount')
+  }
   
   capture = () => {
     const imageSrc = this.webcam.getScreenshot();
@@ -91,11 +95,12 @@ class ClockInForm extends Component {
   render() { 
     const { comment, confirming, timer, error, photo, hasCamera } = this.state;
     const { employee } = this.props;
-    const isWorking = this.props.store.isEmployeeWorking(employee);
+    // const isWorking = this.props.store.isEmployeeWorking(employee);
+    const isWorking = false;
     if (!employee) return null;
     const profilePicUrl = employee.profilePicUrl || placeholder;
     return (
-      <Modal open closeIcon onClose={this.props.onClose}>
+      <Modal open={this.props.open} closeIcon onClose={this.props.onClose}>
         <Modal.Header>
           <Image avatar src={profilePicUrl} /> {employee.firstName}
         </Modal.Header>
@@ -153,4 +158,5 @@ class ClockInForm extends Component {
   }
 }
  
-export default inject('store')(observer(ClockInForm));
+// export default inject('store')(observer(ClockInForm));
+export default ClockInForm;

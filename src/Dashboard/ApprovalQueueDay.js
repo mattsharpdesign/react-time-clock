@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Header, Table, Segment, Button } from 'semantic-ui-react';
 import moment from 'moment';
 import ApprovalQueueEmployee from './ApprovalQueueEmployee';
-import { inject, observer } from 'mobx-react';
+// import { inject, observer } from 'mobx-react';
 // import { databaseLayer } from '.';
 
 class ApprovalQueueDay extends Component {
@@ -102,4 +102,5 @@ class ApprovalQueueDay extends Component {
   }
 }
  
-export default inject('store')(observer(ApprovalQueueDay));
+// export default inject('store')(observer(ApprovalQueueDay));
+export default ApprovalQueueDay;
