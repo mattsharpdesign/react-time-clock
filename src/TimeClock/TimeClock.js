@@ -9,6 +9,7 @@ import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
 import shortid from 'shortid';
 import localforage from 'localforage';
+import appVersion from '../app-version';
 
 class TimeClock extends Component {
   
@@ -173,6 +174,15 @@ class TimeClock extends Component {
 
     return (
       <div>
+        <Menu inverted>
+          <Menu.Item header>TimeClock v{appVersion}</Menu.Item>
+          <Popup 
+              on='click' 
+              trigger={<Menu.Item position='right'>{this.props.user.email}</Menu.Item>} 
+            >
+              <Button negative size='large' onClick={this.signOut} content='Disconnect app' />
+            </Popup>
+        </Menu>
         <Container style={{ paddingTop: '1em' }}>
           <Tab menu={{ pointing: true, size: 'massive' }} panes={panes} />
           {mountWebcam &&
@@ -227,14 +237,6 @@ class TimeClock extends Component {
             </div>
           }
         </Container>
-        <Menu fixed='bottom' inverted>
-          <Popup 
-              on='click' 
-              trigger={<Menu.Item>{this.props.user.email}</Menu.Item>} 
-            >
-              <Button negative size='large' onClick={this.signOut} content='Disconnect app' />
-            </Popup>
-        </Menu>
       </div>
     );
   }
