@@ -49,7 +49,7 @@ class ApprovalQueueShift extends Component {
     return (
       <Table.Row>
         <Table.Cell>
-          {isFirst && <Label ribbon color='blue'>{saving ? 'Saving...' : employee.firstName}</Label>}
+          {isFirst && <Label ribbon color='blue'>{saving ? 'Saving...' : `${employee.lastName}, ${employee.firstName}`}</Label>}
           {!isFirst && saving && <span>Saving...</span>}
         </Table.Cell>
         <ApprovalQueueShiftEventCell event={shift.start} />

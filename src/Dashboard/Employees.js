@@ -11,16 +11,7 @@ class Employees extends Component {
 
   componentDidMount() {
     console.log('Employees did mount');
-    // this.refresh();
   }
-
-  /* refresh = () => {
-    this.props.store.fetchEmployees();
-    // this.setState({ isLoading: true });
-    // databaseLayer.fetchEmployees()
-    //   .then(employees => this.setState({ employees, isLoading: false }))
-    //   .catch(error => console.error(error));
-  } */
 
   editEmployee = (employee = {}) => {
     this.setState({ selectedEmployee: employee, isFormOpen: true })

@@ -1,4 +1,4 @@
-import { auth, storage } from './firebase-services';
+import { storage } from './firebase-services';
 import shortid from 'shortid';
 
 export function uploadUserProfilePic(accountId, userId, pic) {

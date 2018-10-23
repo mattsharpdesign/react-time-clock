@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Popup } from 'semantic-ui-react';
+import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
 import { attachEmployeesListener, attachCurrentShiftsListener } from '../attachListeners';
@@ -74,7 +74,7 @@ class TimeClock extends Component {
 
   onCameraError = error => {
     console.log(error)
-    this.setState({ cameraError: error.message });
+    this.setState({ cameraError: error.message, waitingForCamera: false });
   }
 
   handleChangeComment = (e, { name, value }) => this.setState({ comment: value })
@@ -97,17 +97,6 @@ class TimeClock extends Component {
     console.log(event);
     const tempId = shortid.generate();
     this.store.setItem(tempId, event, () => console.log('event saved to temp storage', event));
-    // if (event.imageSrc) {
-    //   const fileId = shortid.generate();
-    //   const storageRef = storage.ref();
-    //   const fileRef = storageRef.child(`accounts/${accountId}/shifts/${fileId}.jpg`);
-    //   fileRef.putString(event.imageSrc, 'data_url', { contentType: "image/jpeg" })
-    //     .then(snapshot => {
-    //       console.log(snapshot);
-    //       console.log('Image uploaded at:', snapshot.ref.downloadURL)
-    //     })
-    //     .catch(error => console.error('Upload error:', error));
-    // }
     switch (event.eventType) {
       case 'start':
         db.collection('accounts').doc(accountId).collection('shifts').add({
@@ -141,7 +130,7 @@ class TimeClock extends Component {
 
   render() { 
     const { employees, currentShifts } = this.state;
-    const { cameraError, comment, event, isClockInFormOpen, mountWebcam, selectedEmployee } = this.state;
+    const { cameraError, comment, event, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
@@ -202,8 +191,14 @@ class TimeClock extends Component {
           {isClockInFormOpen &&
             <div id='buttons-overlay'>
               <Header as='h2' inverted>
-                <Image avatar src={profilePicUrl} /> {selectedEmployee.firstName}
+                <Image avatar src={profilePicUrl} /> {`${selectedEmployee.firstName} ${selectedEmployee.lastName}`}
               </Header>
+              {waitingForCamera &&
+                <Message warning content='Waiting for camera...' />
+              }
+              {cameraError &&
+                <Message warning>Camera error: {cameraError}</Message>
+              }
               <Grid columns='equal' style={{ textAlign: 'center' }}>
                 <Grid.Column>
                   {!selectedEmployeeIsWorking() &&
@@ -230,9 +225,6 @@ class TimeClock extends Component {
                 </Form.Group>
               </Form>
             </div>
-          }
-          {cameraError &&
-            <div>Camera error: {cameraError}</div>
           }
         </Container>
         <Menu fixed='bottom' inverted>

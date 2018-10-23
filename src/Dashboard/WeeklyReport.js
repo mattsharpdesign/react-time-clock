@@ -57,7 +57,7 @@ class WeeklyReport extends Component {
         <Table.Body>
           {Object.keys(shiftsByEmployee).sort((a,b) => shiftsByEmployee[a].employee.firstName > shiftsByEmployee[b].employee.firstName).map(employeeId => (
             <Table.Row key={employeeId} warning={shiftsByEmployee[employeeId].warning}>
-              <Table.Cell>{shiftsByEmployee[employeeId].employee.firstName}</Table.Cell>
+              <Table.Cell>{shiftsByEmployee[employeeId].employee.lastName}, {shiftsByEmployee[employeeId].employee.firstName}</Table.Cell>
               {[0,1,2,3,4,5,6].map(offset => {
                 const datestamp = moment(startDate).add(offset, 'days').format('YYYY-MM-DD');
                 const output = shiftsByEmployee[employeeId].days[datestamp] ? minutesToHoursAndMinutes(shiftsByEmployee[employeeId].days[datestamp].totalMinutes) : '-';

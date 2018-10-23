@@ -9,12 +9,12 @@ class EmployeeListItem extends Component {
     const e = this.props.employee;
     const profilePicUrl = e.profilePicUrl || placeholder;
     // const status = this.props.store.getEmployeeStatus(e);
-    const status = 'Not here';
-    const classes = {
-      'Here': 'here',
-      'Not here' : 'not-here',
-      'Coming back': 'coming-back',
-    }
+    // const status = 'Not here';
+    // const classes = {
+    //   'Here': 'here',
+    //   'Not here' : 'not-here',
+    //   'Coming back': 'coming-back',
+    // }
     return (
       <List.Item title={e.id} onClick={() => this.props.onSelect(e)}>
         <Image avatar src={profilePicUrl} size='tiny' />
