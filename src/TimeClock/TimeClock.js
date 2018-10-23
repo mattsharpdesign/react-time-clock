@@ -154,6 +154,8 @@ class TimeClock extends Component {
           notHere.push(e);
         }
       });
+      here.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
+      notHere.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
       return { here, notHere };
     }
 
