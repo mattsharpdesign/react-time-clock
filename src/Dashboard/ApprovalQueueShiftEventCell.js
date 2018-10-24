@@ -10,7 +10,7 @@ class ApprovalQueueShiftEventCell extends Component {
       <td>
         {timestampToHoursAndMinutes(event.timestamp)}
         &nbsp;
-        <Popup on='click' trigger={<Icon name={event.screenshotData ? 'camera' : 'warning sign'} />}>
+        <Popup trigger={<Icon name={event.screenshotData ? 'camera' : 'warning sign'} />}>
           {event.screenshotData &&
             <Image src={event.screenshotData} alt='' />
           }
