@@ -197,7 +197,7 @@ class TimeClock extends Component {
               screenshotFormat="image/jpeg"
               screenshotQuality={0.6}
               screenshotWidth={350}
-              style={{ visibility: isClockInFormOpen ? 'visible' : 'hidden' }}
+              style={{ visibility: isClockInFormOpen ? currentEvent ? 'hidden' : 'visible' : 'hidden' }}
               videoConstraints={videoConstraints}
             />
           }
