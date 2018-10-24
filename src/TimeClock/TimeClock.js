@@ -3,14 +3,12 @@ import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Popup, M
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
 import { attachEmployeesListener, attachCurrentShiftsListener } from '../attachListeners';
-// import { inject, observer } from 'mobx-react';
 import './TimeClock.css'
 import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
 import shortid from 'shortid';
 import localforage from 'localforage';
 import packageJson from '../../package.json';
-// import appVersion from '../app-version';
 
 class TimeClock extends Component {
   
