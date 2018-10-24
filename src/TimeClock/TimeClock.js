@@ -195,7 +195,7 @@ class TimeClock extends Component {
               onUserMediaError={this.onCameraError}
               ref={this.setRef}
               screenshotFormat="image/jpeg"
-              screenshotQuality={0.6}
+              screenshotQuality={0.5}
               screenshotWidth={350}
               style={{ visibility: isClockInFormOpen ? currentEvent ? 'hidden' : 'visible' : 'hidden' }}
               videoConstraints={videoConstraints}
@@ -215,10 +215,16 @@ class TimeClock extends Component {
               <Grid columns='equal' style={{ textAlign: 'center' }}>
                 <Grid.Column>
                   {!selectedEmployeeIsWorking() &&
-                    <Button positive size='massive' onClick={() => this.createEvent(selectedEmployee, 'start')} content='Start work' />
+                    <Button positive size='massive' 
+                      onClick={() => this.createEvent(selectedEmployee, 'start')} 
+                      content='Start work'
+                    />
                   }
                   {selectedEmployeeIsWorking() &&
-                    <Button negative size='massive' onClick={() => this.createEvent(selectedEmployee, 'finish')} content='Stop work' />
+                    <Button negative size='massive' 
+                      onClick={() => this.createEvent(selectedEmployee, 'finish')} 
+                      content='Stop work'
+                    />
                   }
                 </Grid.Column>
                 <Grid.Column>
