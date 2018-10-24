@@ -1,29 +1,3 @@
-.ui.stackable.menu {
-  margin-top: 0;
-}
-
-.ui.attached.tabular.menu {
-  margin-bottom: 20px;
-}
-
-.description.coming-back {
-  color: #f2711c !important;
-}
-
-.description.not-here {
-  color: rgb(219, 40, 40) !important;
-}
-
-.description.here {
-  color: rgb(33, 186, 69) !important;
-}
-
-video {
-  /* border: 1px solid rebeccapurple; */
-  width: 100%;
-}
-
-.clock-in-buttons {
-  margin-bottom: 10px;
-  text-align: center;
+.page-container {
+  padding-bottom: 100px;
 }

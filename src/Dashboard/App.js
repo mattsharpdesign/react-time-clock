@@ -75,7 +75,7 @@ class App extends Component {
     const { employees, approvedShifts, loadingEmployees, loadingApprovedShifts, weeklyReportStartDate } = this.state;
     return (
       <Router>
-        <div>
+        <div className='page-container'>
           <Menu stackable>
             <Menu.Item header>TimeClock Admin v{appVersion}</Menu.Item>
             <Menu.Item as={NavLink} to='/approval-queue'>Approval Queue</Menu.Item>

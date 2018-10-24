@@ -176,7 +176,7 @@ class TimeClock extends Component {
     ];
 
     return (
-      <div>
+      <div className='page-container'>
         <Menu inverted>
           <Menu.Item header>TimeClock v{appVersion}</Menu.Item>
           <Popup 
