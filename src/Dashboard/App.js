@@ -36,9 +36,9 @@ class App extends Component {
 
   componentDidMount() {
     console.log('Dashboard did mount at', new Date());
-    const { user, accountSettings } = this.props;
-    const startDate = getStartOfPreviousWeek(accountSettings.weekStartsOn);
-    this.loadWeeklyReport(startDate);
+    const { user } = this.props;
+    // const startDate = getStartOfPreviousWeek(accountSettings.weekStartsOn);
+    this.loadWeeklyReport();
     // this.setState({ weeklyReportStartDate });
     this.attachEmployeesListener(user.accountId);
     // this.attachCurrentShiftsListener(user.accountId);
@@ -51,9 +51,17 @@ class App extends Component {
 
   signOut = () => auth.signOut();
 
+  changeWeeklyReportStartDate = date => {
+    console.log(date)
+    if (date._isAMomentObject) date = date.toDate()
+    this.loadWeeklyReport(date)
+    // this.setState({ weeklyReportStartDate: date }, this.loadWeeklyReport());
+  }
+
   loadWeeklyReport = date => {
     this.setState({ loadingApprovedShifts: true });
-    if (!date) date = this.state.weeklyReportStartDate;
+    // if (!date) date = this.state.weeklyReportStartDate;
+    if (!date) date = getStartOfPreviousWeek(this.props.accountSettings.weekStartsOn)
     var startDate = moment(date).startOf('day').toDate();
     let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
     console.log('Loading shifts starting at', startDate, 'ending at', endDate);
@@ -106,7 +114,8 @@ class App extends Component {
                   startDate={weeklyReportStartDate} 
                   shifts={approvedShifts}
                   loading={loadingApprovedShifts}
-                  reload={this.loadWeeklyReport} 
+                  reload={() => this.loadWeeklyReport(this.state.weeklyReportStartDate)} 
+                  onChangeDate={this.changeWeeklyReportStartDate}
                   employees={employees} 
                   accountSettings={accountSettings} 
                 />

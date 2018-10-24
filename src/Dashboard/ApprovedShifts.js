@@ -34,7 +34,7 @@ class ApprovedShifts extends Component {
           <Menu.Item>
             <DatePicker 
               selected={moment(startDate)} 
-              onChange={this.props.reload}
+              onChange={this.props.onChangeDate}
               filterDate={date => date.day() === weekStartsOn}
               customInput={<a href='#select-start-date'>{moment(startDate).format('dddd, D MMMM YYYY')}</a>} 
             />
