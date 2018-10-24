@@ -33,6 +33,10 @@ class ApprovalQueue extends Component {
         });
         this.setState({ shifts, loading: false });
       })
+      .catch(error => {
+        console.log(error)
+        this.setState({ loading: false, error });
+      })
   }
 
   // getShiftTotalMinutes(shift) {
@@ -52,7 +56,7 @@ class ApprovalQueue extends Component {
     const { user } = this.props;
     // const shifts = this.props.approvalQueue;
     // const loading = this.props.loadingApprovalQueue;
-    const { shifts, loading } = this.state;
+    const { shifts, loading, error } = this.state;
     function datestamps() {
       let datestamps = [];
       shifts.forEach(shift => {
@@ -73,11 +77,19 @@ class ApprovalQueue extends Component {
           <Menu.Item header>Approval Queue</Menu.Item>
           <Menu.Item position='right' onClick={this.refresh}><Icon name='refresh' /> Reload</Menu.Item>
         </Menu>
-        {!loading && !shifts.length &&
+        {!loading && !shifts.length && !error &&
           <Message positive>
             <Message.Header>Congratulations!</Message.Header>
             <p>
               The approval queue is empty
+            </p>
+          </Message>
+        }
+        {error && !loading &&
+          <Message negative>
+            <Message.Header>Error!</Message.Header>
+            <p>
+              An unknown error occurred
             </p>
           </Message>
         }
