@@ -6,7 +6,7 @@ import Employees from './Employees';
 import ApprovedShifts from './ApprovedShifts';
 import Settings from './Settings';
 import ApprovalQueue from './ApprovalQueue';
-import { attachEmployeesListener, attachCurrentShiftsListener, attachApprovalQueueListener } from '../attachListeners';
+import { attachEmployeesListener } from '../attachListeners';
 import { updateShift } from '../updateShift';
 import { db } from '../firebase-services';
 import moment from 'moment';
@@ -28,8 +28,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.attachEmployeesListener = attachEmployeesListener.bind(this);
-    this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
-    this.attachApprovalQueueListener = attachApprovalQueueListener.bind(this);
+    // this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
+    // this.attachApprovalQueueListener = attachApprovalQueueListener.bind(this);
     this.updateShift = updateShift.bind(this);
   }
 
@@ -40,8 +40,8 @@ class App extends Component {
     this.loadWeeklyReport(startDate);
     // this.setState({ weeklyReportStartDate });
     this.attachEmployeesListener(user.accountId);
-    this.attachCurrentShiftsListener(user.accountId);
-    this.attachApprovalQueueListener(user.accountId);
+    // this.attachCurrentShiftsListener(user.accountId);
+    // this.attachApprovalQueueListener(user.accountId);
   }
 
   componentWillUnmount() {
@@ -71,8 +71,7 @@ class App extends Component {
 
   render() { 
     const { user, accountSettings } = this.props;
-    const { employees, approvalQueue, approvedShifts, loadingEmployees, loadingCurrentShifts, loadingApprovedShifts, loadingApprovalQueue, weeklyReportStartDate } = this.state;
-    const isLoading = loadingEmployees || loadingCurrentShifts;
+    const { employees, approvedShifts, loadingEmployees, loadingApprovedShifts, weeklyReportStartDate } = this.state;
     return (
       <Router>
         <div>
@@ -92,14 +91,12 @@ class App extends Component {
             </Popup>
           </Menu>
           <Container>
-            <Loader active={isLoading} content='Loading data' />
+            <Loader active={loadingEmployees} content='Loading data' />
             <Switch>
               <Route path='/approval-queue' render={() => (
                 <ApprovalQueue 
                   user={user} 
-                  approvalQueue={approvalQueue} 
                   accountSettings={accountSettings} 
-                  loadingApprovalQueue={loadingApprovalQueue} 
                 />
               )} />
               <Route path='/approved-shifts' render={() => (
