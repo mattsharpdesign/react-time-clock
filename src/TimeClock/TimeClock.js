@@ -22,7 +22,8 @@ class TimeClock extends Component {
     selectedEmployee: null,
     mountWebcam: true,
     waitingForCamera: true,
-    event: {}
+    currentEvent: null,
+    comment: ''
   }
 
   listeners = [];
@@ -84,16 +85,16 @@ class TimeClock extends Component {
     const screenshotData = this.webcam.getScreenshot();
     const timestamp = new Date();
     const event = { employee, eventType, timestamp, screenshotData }
-    this.setState({ event });
-    console.log('event in state', event)
+    this.setState({ currentEvent: event });
   }
 
   cancelEvent = () => {
-    this.setState({ event: {} });
+    this.setState({ currentEvent: null });
   }
 
   confirmEvent = () => {
-    const { comment, event } = this.state;
+    const event = this.state.currentEvent;
+    const comment = this.state.comment;
     const { accountId } = this.props.user;
     console.log(event);
     const tempId = shortid.generate();
@@ -126,12 +127,12 @@ class TimeClock extends Component {
       default: 
         console.warn('eventType was neither start nor finish');
     }
-    this.setState({ event: {}, isClockInFormOpen: false, comment: '' });
+    this.setState({ currentEvent: null, isClockInFormOpen: false, comment: '' });
   }
 
   render() { 
     const { employees, currentShifts } = this.state;
-    const { cameraError, comment, event, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
+    const { cameraError, comment, currentEvent, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
@@ -226,9 +227,9 @@ class TimeClock extends Component {
               </Grid>
             </div>
           }
-          {event.screenshotData &&
+          {currentEvent &&
             <div id='screenshot-backdrop'>
-              <Image rounded centered src={event.screenshotData} alt='' />
+              <Image rounded centered src={currentEvent.screenshotData} alt='' />
               <Form style={{ paddingTop: '2em' }}>
                 <Form.Input type='text' size='massive' placeholder='Add a comment?' value={comment} onChange={this.handleChangeComment} />
                 <Form.Group>
