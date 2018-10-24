@@ -75,7 +75,7 @@ class ApprovalQueueDay extends Component {
               <Table.HeaderCell>Employee</Table.HeaderCell>
               <Table.HeaderCell>Start</Table.HeaderCell>
               <Table.HeaderCell>Finish</Table.HeaderCell>
-              <Table.HeaderCell>Break</Table.HeaderCell>
+              <Table.HeaderCell>Unpaid break</Table.HeaderCell>
               <Table.HeaderCell>Hours</Table.HeaderCell>
               <Table.HeaderCell>Comment</Table.HeaderCell>
               <Table.HeaderCell />
@@ -83,7 +83,16 @@ class ApprovalQueueDay extends Component {
           </Table.Header>
           <Table.Body>
             {this.getEmployees().map(employee => (
-              <ApprovalQueueEmployee key={employee.id} isApprovedShifts={this.props.isApprovedShifts} db={this.props.db} user={this.props.user} employee={employee} shifts={shifts.filter(s => s.employee.id === employee.id)} toggleChecked={this.toggleChecked} />
+              <ApprovalQueueEmployee 
+                key={employee.id} 
+                isApprovedShifts={this.props.isApprovedShifts} 
+                db={this.props.db} 
+                user={this.props.user} 
+                accountSettings={this.props.accountSettings}
+                employee={employee} 
+                shifts={shifts.filter(s => s.employee.id === employee.id)} 
+                toggleChecked={this.toggleChecked} 
+              />
             ))}
           </Table.Body>
         </Table>

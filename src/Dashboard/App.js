@@ -94,7 +94,14 @@ class App extends Component {
           <Container>
             <Loader active={isLoading} content='Loading data' />
             <Switch>
-              <Route path='/approval-queue' render={() => <ApprovalQueue user={user} approvalQueue={approvalQueue} loadingApprovalQueue={loadingApprovalQueue} />} />
+              <Route path='/approval-queue' render={() => (
+                <ApprovalQueue 
+                  user={user} 
+                  approvalQueue={approvalQueue} 
+                  accountSettings={accountSettings} 
+                  loadingApprovalQueue={loadingApprovalQueue} 
+                />
+              )} />
               <Route path='/approved-shifts' render={() => (
                 <ApprovedShifts 
                   user={user} 

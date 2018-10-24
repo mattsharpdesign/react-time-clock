@@ -57,6 +57,7 @@ class ApprovalQueue extends Component {
             date={moment(datestamp).toDate()}
             shifts={filterShifts(datestamp)} 
             isApprovalQueue={true}
+            accountSettings={this.props.accountSettings}
             user={user}
           />
         ))}

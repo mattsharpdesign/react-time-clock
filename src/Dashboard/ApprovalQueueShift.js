@@ -12,7 +12,7 @@ class ApprovalQueueShift extends Component {
     super(props);
     this.state = { 
       comment: props.shift.supervisorComment || '',
-      unpaidMinutes: getUnpaidMinutes(props.shift),
+      unpaidMinutes: getUnpaidMinutes(props.shift, props.accountSettings),
     }
   }
 

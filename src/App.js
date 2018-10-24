@@ -26,15 +26,9 @@ class App extends Component {
         this.setState({ authenticated: true, loadingSettings: true });
         db.collection('users').doc(authUser.uid).get().then(doc => {
           this.setState({ user: doc.data() });
-          // this.user = { ...doc.data(), id: doc.id };
           db.collection('accounts').doc(doc.data().accountId).get().then(doc => {
             this.account = { ...doc.data(), id: doc.id };
             this.setState({ accountSettings: doc.data(), loadingSettings: false });
-            // this.attachEmployeesListener();
-            // this.fetchCurrentShifts();
-            // this.attachApprovalQueueListener();
-            // this.setWeeklyReportStartDate();
-
           });
         });
       } else {
