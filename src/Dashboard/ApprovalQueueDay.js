@@ -40,8 +40,7 @@ class ApprovalQueueDay extends Component {
     approveSelectedShifts(this.props.user.accountId, this.state.checkedShifts, true)
       .then(() => {
         this.setState({ loading: false, checkedShifts: [] });
-        /* don't need to reload if we use Firebase realtime stuff */
-        // this.props.onReload(); 
+        this.props.refresh(); 
       })
       .catch(error => {
         console.error(error);
@@ -55,7 +54,7 @@ class ApprovalQueueDay extends Component {
     approveSelectedShifts(this.props.user.accountId, this.state.checkedShifts, false)
       .then(() => {
         this.setState({ loading: false, checkedShifts: [] });
-        this.props.onReload(); 
+        this.props.refresh(); 
       })
       .catch(error => {
         console.error(error);

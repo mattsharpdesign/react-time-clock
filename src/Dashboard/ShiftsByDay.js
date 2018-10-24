@@ -30,7 +30,7 @@ class ShiftsByDay extends Component {
             date={moment(datestamp).toDate()} 
             shifts={filterShifts(datestamp)} 
             isApprovedShifts={true} 
-            onReload={this.props.onReload}
+            refresh={this.props.refresh}
             readonly={this.props.readonly}
             user={this.props.user}
           />

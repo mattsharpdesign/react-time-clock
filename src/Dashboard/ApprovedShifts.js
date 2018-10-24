@@ -23,7 +23,7 @@ class ApprovedShifts extends Component {
     const { weekStartsOn } = this.props.accountSettings;
     const { shifts, loading } = this.props;
     const panes = [
-      { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={shifts} user={this.props.user} onReload={this.props.reload} readonly={true} /> },
+      { menuItem: 'Daily times', render: () => <ShiftsByDay shifts={shifts} user={this.props.user} refresh={this.props.reload} readonly={true} /> },
       { menuItem: 'Weekly report', render: () => <WeeklyReport startDate={startDate} shifts={shifts} employees={employees} /> }
     ];
     return (

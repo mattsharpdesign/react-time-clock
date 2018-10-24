@@ -89,6 +89,7 @@ class ApprovalQueue extends Component {
             isApprovalQueue={true}
             accountSettings={this.props.accountSettings}
             user={user}
+            refresh={this.refresh}
           />
         ))}
       </div>
