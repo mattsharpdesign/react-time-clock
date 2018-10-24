@@ -11,6 +11,7 @@ import { updateShift } from '../updateShift';
 import { db } from '../firebase-services';
 import moment from 'moment';
 import { getStartOfPreviousWeek } from '../getStartOfPreviousWeek';
+import appVersion from '../app-version';
 
 class App extends Component {
   state = {
@@ -76,7 +77,7 @@ class App extends Component {
       <Router>
         <div>
           <Menu stackable>
-            <Menu.Item header>TimeClock Admin</Menu.Item>
+            <Menu.Item header>TimeClock Admin v{appVersion}</Menu.Item>
             <Menu.Item as={NavLink} to='/approval-queue'>Approval Queue</Menu.Item>
             <Menu.Item as={NavLink} to='/approved-shifts'>Approved Shifts</Menu.Item>
             <Menu.Item as={NavLink} to='/employees'>Employees</Menu.Item>
