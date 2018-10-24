@@ -2,18 +2,11 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/storage';
+import configs from './config/firebase-config.json';
 
-var config = {
-  apiKey: "AIzaSyAYCaOQw0gDHySugvZOBZFe-eImvt9z9cQ",
-  authDomain: "timeclock-testing.firebaseapp.com",
-  databaseURL: "https://timeclock-testing.firebaseio.com",
-  projectId: "timeclock-testing",
-  storageBucket: "timeclock-testing.appspot.com",
-  messagingSenderId: "170289627623"
-};
+const env = process.env.REACT_APP_FIREBASE_ENV || 'development'
 
-console.log('Initializing Firebase app');
-firebase.initializeApp(config);
+firebase.initializeApp(configs[env]);
 
 export const auth = firebase.auth();
 

@@ -9,7 +9,8 @@ import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
 import shortid from 'shortid';
 import localforage from 'localforage';
-import appVersion from '../app-version';
+import packageJson from '../../package.json';
+// import appVersion from '../app-version';
 
 class TimeClock extends Component {
   
@@ -178,7 +179,7 @@ class TimeClock extends Component {
     return (
       <div className='page-container'>
         <Menu inverted>
-          <Menu.Item header>TimeClock v{appVersion}</Menu.Item>
+          <Menu.Item header>TimeClock v{packageJson.version}</Menu.Item>
           <Popup 
               on='click' 
               trigger={<Menu.Item position='right'>{this.props.user.email}</Menu.Item>} 
