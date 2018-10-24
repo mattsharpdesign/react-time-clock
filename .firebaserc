@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "onlinetimekeeper"
+    "default": "onlinetimekeeper",
+    "testing": "timeclock-testing"
   }
 }
