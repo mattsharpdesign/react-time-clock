@@ -13,7 +13,7 @@ class EmployeeCard extends Component {
         <Image src={profilePicUrl} />
         <Card.Content>
           <Card.Header>{employee.lastName}, {employee.firstName}</Card.Header>
-          {/* <Card.Meta>TODO: employee status</Card.Meta> */}
+          <Card.Meta>STATUS: {employee.status}</Card.Meta>
         </Card.Content>
       </Card>
     );

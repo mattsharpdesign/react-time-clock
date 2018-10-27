@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
-import { attachEmployeesListener, attachCurrentShiftsListener } from '../attachListeners';
+import { attachEmployeesListener/* , attachCurrentShiftsListener */ } from '../attachListeners';
 import './TimeClock.css'
 import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
@@ -15,7 +15,7 @@ class TimeClock extends Component {
   state = {
     employees: [],
     loadingEmployees: true,
-    currentShifts: [],
+    // currentShifts: [],
     loadingCurrentShifts: true,
     isClockInFormOpen: false,
     selectedEmployee: null,
@@ -32,7 +32,7 @@ class TimeClock extends Component {
   constructor(props) {
     super(props);
     this.attachEmployeesListener = attachEmployeesListener.bind(this);
-    this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
+    // this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
   }
 
   signOut = () => auth.signOut();
@@ -46,7 +46,7 @@ class TimeClock extends Component {
     const { user } = this.props;
     this.store = localforage.createInstance({ name: 'timeclock-temp-data-storage' })
     this.attachEmployeesListener(user.accountId);
-    this.attachCurrentShiftsListener(user.accountId);
+    // this.attachCurrentShiftsListener(user.accountId);
   }
 
   componentWillUnmount() {
@@ -98,22 +98,26 @@ class TimeClock extends Component {
     console.log(event);
     const tempId = shortid.generate();
     this.store.setItem(tempId, event, () => console.log('event saved to temp storage', event));
+    let newStatus, shiftId;
     switch (event.eventType) {
       case 'start':
-        db.collection('accounts').doc(accountId).collection('shifts').add({
+        shiftId = `${Date.now()}-${event.employee.id}-${shortid.generate()}`
+        newStatus = 1
+        db.collection('accounts').doc(accountId).collection('shifts').doc(shiftId).set({
           employeeId: event.employee.id,
           employee: event.employee,
           start: { timestamp: event.timestamp, comment: comment || null, screenshotData: event.screenshotData || null },
           finish: null,
-          isApproved: false
+          isApproved: false,
         }).then(docRef => {
-          console.log('Shift created with id', docRef.id);
+          console.log('Shift created with id', shiftId);
           this.store.removeItem(tempId, () => console.log('temp item removed'));
         }).catch(error => console.error(error));
         break;
       case 'finish':
-        const shift = this.state.currentShifts.find(shift => shift.employeeId === event.employee.id);
-        db.collection('accounts').doc(accountId).collection('shifts').doc(shift.id).set({
+      case 'pause':
+        // const shift = this.state.currentShifts.find(shift => shift.employeeId === event.employee.id);
+        db.collection('accounts').doc(accountId).collection('shifts').doc(event.employee.shiftId).set({
           finish: {
             timestamp: event.timestamp,
             comment: comment || null,
@@ -122,56 +126,48 @@ class TimeClock extends Component {
         }, { merge: true }).then(() => {
           this.store.removeItem(tempId, () => console.log('temp item removed'));
         }).catch(error => console.error('Error updating shift: ', error));
+        if (event.eventType === 'pause') {
+          newStatus = 2
+        } else {
+          newStatus = 0
+        }
+        shiftId = null
         break;
       default: 
-        console.warn('eventType was neither start nor finish');
+        console.warn('eventType was not any of start, finish, or pause');
     }
+    db.collection('accounts').doc(accountId).collection('employees').doc(event.employee.id).set({
+      status: newStatus,
+      shiftId: shiftId
+    }, { merge: true })
     this.setState({ currentEvent: null, isClockInFormOpen: false, comment: '' });
   }
 
   render() { 
-    const { employees, currentShifts } = this.state;
     const { cameraError, comment, currentEvent, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
     };
-    const selectedEmployeeIsWorking = () => {
-      if (currentShifts.findIndex(s => s.employeeId === selectedEmployee.id) > -1) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    function filteredEmployees(employees) {
-      const here = [];
-      const notHere = [];
-      employees.forEach(e => {
-        const index = currentShifts.findIndex(s => s.employeeId === e.id);
-        if (index > -1) {
-          here.push(e);
-        } else {
-          notHere.push(e);
-        }
-      });
-      here.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
-      notHere.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
-      return { here, notHere };
-    }
-
-    const { here, notHere } = filteredEmployees(employees);
+    const sortedEmployees = this.state.employees.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
 
     const panes = [
       { menuItem: (
-        <Menu.Item key={1} color='green'>
-          <Icon name='sign-in' /> Clock In
+        <Menu.Item key={1}>
+          <Icon name='users' /> Everyone
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={notHere} onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={sortedEmployees} onSelect={this.openClockInForm} /> },
       { menuItem: (
-        <Menu.Item key={2} color='red'>
-          <Icon name='sign-out' /> Clock Out
+        <Menu.Item key={2} color='green'>
+          <Icon name='sign-in' /> Here
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={here} onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={sortedEmployees} filter='here' onSelect={this.openClockInForm} /> },
+      { menuItem: (
+        <Menu.Item key={3} color='red'>
+          <Icon name='sign-out' /> Not here
+        </Menu.Item>
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={sortedEmployees} filter='not here' onSelect={this.openClockInForm} /> },
+    
     ];
 
     return (
@@ -212,20 +208,38 @@ class TimeClock extends Component {
                 <Message warning>Camera error: {cameraError}</Message>
               }
               <Grid columns='equal' style={{ textAlign: 'center' }}>
-                <Grid.Column>
-                  {!selectedEmployeeIsWorking() &&
+                {selectedEmployee.status === 0 &&
+                  <Grid.Column>
                     <Button positive size='massive' 
                       onClick={() => this.createEvent(selectedEmployee, 'start')} 
                       content='Start work'
                     />
-                  }
-                  {selectedEmployeeIsWorking() &&
+                  </Grid.Column>
+                }
+                {selectedEmployee.status === 1 &&
+                  <React.Fragment>
+                    <Grid.Column>
                     <Button negative size='massive' 
                       onClick={() => this.createEvent(selectedEmployee, 'finish')} 
                       content='Stop work'
                     />
-                  }
-                </Grid.Column>
+                    </Grid.Column>
+                    <Grid.Column>
+                    <Button color='orange' size='massive' 
+                      onClick={() => this.createEvent(selectedEmployee, 'pause')} 
+                      content='Leave temporarily'
+                    />
+                    </Grid.Column>
+                  </React.Fragment>
+                }
+                {selectedEmployee.status === 2 &&
+                  <Grid.Column>
+                    <Button positive size='massive' 
+                      onClick={() => this.createEvent(selectedEmployee, 'start')} 
+                      content='Resume work'
+                    />
+                  </Grid.Column>
+                }
                 <Grid.Column>
                   <Button basic color='orange' size='massive' onClick={this.closeClockInForm} content='Cancel' />
                 </Grid.Column>
