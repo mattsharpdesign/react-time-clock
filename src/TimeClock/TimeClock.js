@@ -101,14 +101,16 @@ class TimeClock extends Component {
     let newStatus, shiftId;
     switch (event.eventType) {
       case 'start':
-        shiftId = `${Date.now()}-${event.employee.id}-${shortid.generate()}`
+        shiftId = `${Date.now()}-${event.employee.lastName}-${event.employee.firstName}-${tempId}`
         newStatus = 1
         db.collection('accounts').doc(accountId).collection('shifts').doc(shiftId).set({
           employeeId: event.employee.id,
+          employeeName: `${event.employee.lastName}, ${event.employee.firstName}`,
           employee: event.employee,
           start: { timestamp: event.timestamp, comment: comment || null, screenshotData: event.screenshotData || null },
           finish: null,
           isApproved: false,
+          appVersion: packageJson.version
         }).then(docRef => {
           console.log('Shift created with id', shiftId);
           this.store.removeItem(tempId, () => console.log('temp item removed'));
@@ -116,7 +118,6 @@ class TimeClock extends Component {
         break;
       case 'finish':
       case 'pause':
-        // const shift = this.state.currentShifts.find(shift => shift.employeeId === event.employee.id);
         db.collection('accounts').doc(accountId).collection('shifts').doc(event.employee.shiftId).set({
           finish: {
             timestamp: event.timestamp,
@@ -221,13 +222,13 @@ class TimeClock extends Component {
                     <Grid.Column>
                     <Button negative size='massive' 
                       onClick={() => this.createEvent(selectedEmployee, 'finish')} 
-                      content='Stop work'
+                      content='Finish work'
                     />
                     </Grid.Column>
                     <Grid.Column>
                     <Button color='orange' size='massive' 
                       onClick={() => this.createEvent(selectedEmployee, 'pause')} 
-                      content='Leave temporarily'
+                      content='Stop work temporarily'
                     />
                     </Grid.Column>
                   </React.Fragment>
