@@ -51,7 +51,7 @@ class App extends Component {
     if (user.role === 'admin') {
       return <Dashboard user={user} accountSettings={accountSettings} />
     } else {
-      return <TimeClock user={user} />
+      return <TimeClock user={user} accountSettings={accountSettings} />
     }
   }
 }

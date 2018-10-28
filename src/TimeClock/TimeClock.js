@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { Icon, Image, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message } from 'semantic-ui-react';
+import { Icon, Image, List, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message, Modal } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
-import { attachEmployeesListener/* , attachCurrentShiftsListener */ } from '../attachListeners';
+import { attachEmployeesListener } from '../attachListeners';
 import './TimeClock.css'
 import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
 import shortid from 'shortid';
 import localforage from 'localforage';
 import packageJson from '../../package.json';
+import MyHours from './MyHours';
 
 class TimeClock extends Component {
   
@@ -91,6 +92,10 @@ class TimeClock extends Component {
     this.setState({ currentEvent: null });
   }
 
+  openMyHours = () => this.setState({ isMyHoursOpen: true })
+
+  closeMyHours = () => this.setState({ isMyHoursOpen: false })
+
   confirmEvent = () => {
     const event = this.state.currentEvent;
     const comment = this.state.comment;
@@ -145,7 +150,7 @@ class TimeClock extends Component {
   }
 
   render() { 
-    const { cameraError, comment, currentEvent, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera } = this.state;
+    const { cameraError, comment, currentEvent, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera, isMyHoursOpen } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
@@ -199,9 +204,27 @@ class TimeClock extends Component {
           }
           {isClockInFormOpen &&
             <div id='buttons-overlay'>
-              <Header as='h2' inverted>
-                <Image avatar src={profilePicUrl} /> {`${selectedEmployee.firstName} ${selectedEmployee.lastName}`}
-              </Header>
+              <Grid columns={2}>
+                <Grid.Column>
+                  <Header as='h2' inverted>
+                    <Image avatar src={profilePicUrl} /> {`${selectedEmployee.firstName} ${selectedEmployee.lastName}`}
+                  </Header>
+                </Grid.Column>
+                <Grid.Column textAlign='right'>
+                  <Popup 
+                    on='click' 
+                    trigger={
+                      <Button size='big' icon>
+                        <Icon name='ellipsis vertical' />
+                      </Button>
+                    }
+                  >
+                    <List size='big' relaxed='very'>
+                      <List.Item as='a' onClick={this.openMyHours}>My hours</List.Item>
+                    </List>
+                  </Popup>
+                </Grid.Column>
+              </Grid>
               {waitingForCamera &&
                 <Message warning content='Waiting for camera...' />
               }
@@ -258,6 +281,14 @@ class TimeClock extends Component {
                 </Form.Group>
               </Form>
             </div>
+          }
+          {selectedEmployee &&
+          <Modal open={isMyHoursOpen} size='fullscreen' closeIcon onClose={this.closeMyHours}>
+            <Modal.Header><em>My Hours</em>{' '}for {selectedEmployee.firstName} {selectedEmployee.lastName}</Modal.Header>
+            <Modal.Content>
+              <MyHours employee={selectedEmployee} weekStartsOn={this.props.accountSettings.weekStartsOn} accountId={this.props.user.accountId} />
+            </Modal.Content>
+          </Modal>
           }
         </Container>
       </div>
