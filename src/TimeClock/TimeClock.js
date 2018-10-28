@@ -107,7 +107,7 @@ class TimeClock extends Component {
     let newStatus, shiftId;
     switch (event.eventType) {
       case 'start':
-        shiftId = `${moment().format('YYYYMMDD-HHmmss')}-${event.employee.lastName}-${event.employee.firstName}-${tempId}`
+        shiftId = `${moment().format('YYYYMMDD-HHmm')}-${event.employee.lastName}-${event.employee.firstName}-${tempId}`
         newStatus = 1
         db.collection('accounts').doc(accountId).collection('shifts').doc(shiftId).set({
           employeeId: event.employee.id,
