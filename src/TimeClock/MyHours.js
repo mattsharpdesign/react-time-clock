@@ -1,35 +1,22 @@
 import React, { Component } from 'react';
-import { Loader, Menu, Message, Table, Container } from 'semantic-ui-react';
+import { Menu, Message, Table, Container, Segment } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { getStartOfPreviousWeek } from '../getStartOfPreviousWeek';
 import { db } from '../firebase-services';
-import { totalMinutes } from '../shift-time-functions'; 
+import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions'; 
 import { minutesToHoursAndMinutes } from '../date-functions'; 
 
-class Shift {
-  constructor(id, data) {
-    this.id = id;
-    this.start = data.start;
-    this.finish = data.finish;
-    this.unpaidMinutes = data.unpaidMinutes || 0;
-    this.isApproved = data.isApproved;
-  }
-}
+// class Shift {
+//   constructor(id, data) {
+//     this.id = id;
+//     this.start = data.start;
+//     this.finish = data.finish;
+//     this.unpaidMinutes = data.unpaidMinutes || getUnpaidMinutes(data, { defaultUnpaidMinutes: });
+//     this.isApproved = data.isApproved;
+//   }
+// }
 
-function getTotalHours(shifts) {
-  let approved = 0;
-  let notApproved = 0;
-  shifts.forEach(s => {
-    if (!s.finish) return
-    if (s.isApproved) {
-      approved += (totalMinutes(s) - s.unpaidMinutes)
-    } else {
-      notApproved += (totalMinutes(s) - s.unpaidMinutes)
-    }
-  })
-  return { approved, notApproved }
-}
 
 class MyHours extends Component {
   state = {
@@ -53,21 +40,36 @@ class MyHours extends Component {
       .get().then(snapshot => {
         const shifts = [];
         snapshot.docs.forEach(doc => {
-          const shift = new Shift(doc.id, doc.data());
-          shifts.push(shift);
-          // shifts.push({ ...doc.data(), id: doc.id });
+          // const shift = new Shift(doc.id, doc.data());
+          // shifts.push(shift);
+          shifts.push({ ...doc.data(), id: doc.id });
         });
         console.log(shifts)
         this.setState({ loading: false, startDate: startDate, shifts: shifts });
       });
   }
+  
+  getTotalHours = shifts => {
+    let approved = 0;
+    let notApproved = 0;
+    shifts.forEach(s => {
+      let unpaidMinutes = getUnpaidMinutes(s, { defaultUnpaidMinutes: this.props.defaultUnpaidMinutes})
+      if (!s.finish) return
+      if (s.isApproved) {
+        approved += (totalMinutes(s) - unpaidMinutes)
+      } else {
+        notApproved += (totalMinutes(s) - unpaidMinutes)
+      }
+    })
+    return { approved, notApproved }
+  }
+  
   render() { 
     const { weekStartsOn } = this.props
     const { startDate, loading, shifts } = this.state
-    const { approved, notApproved } = getTotalHours(shifts)
+    const { approved, notApproved } = this.getTotalHours(shifts)
     return (
-      <div>
-        <Loader content='Loading' active={loading} />
+      <Segment loading={loading}>
         <Menu secondary>
           <Menu.Item header>Week beginning</Menu.Item>
           <Menu.Item>
@@ -98,28 +100,29 @@ class MyHours extends Component {
               <Table.Footer>
                 <Table.Row>
                   <Table.HeaderCell colSpan={4}>Approved hours</Table.HeaderCell>
-                  <Table.HeaderCell>{minutesToHoursAndMinutes(approved)}</Table.HeaderCell>
+                  <Table.HeaderCell><strong>{minutesToHoursAndMinutes(approved)}</strong></Table.HeaderCell>
                 </Table.Row>
-                <Table.Row>
+                <Table.Row warning>
                   <Table.HeaderCell colSpan={4}>Awaiting approval</Table.HeaderCell>
                   <Table.HeaderCell>{minutesToHoursAndMinutes(notApproved)}</Table.HeaderCell>
                 </Table.Row>
               </Table.Footer>
               <Table.Body>
                 {shifts.map(s => {
+                  let unpaidMinutes = getUnpaidMinutes(s, { defaultUnpaidMinutes: this.props.defaultUnpaidMinutes})
                   return (<Table.Row key={s.id} positive={!s.finish} warning={s.finish && !s.isApproved} title={s.id}>
                     <Table.Cell>{moment(s.start.timestamp.toDate()).format('dddd DD/MM')}</Table.Cell>
                     <Table.Cell>{moment(s.start.timestamp.toDate()).format('HH:mm')}</Table.Cell>
                     <Table.Cell>{s.finish ? moment(s.finish.timestamp.toDate()).format('HH:mm') : ''}</Table.Cell>
-                    <Table.Cell>{s.unpaidMinutes}</Table.Cell>
-                    <Table.Cell>{s.finish ? minutesToHoursAndMinutes(totalMinutes(s) - s.unpaidMinutes) : ''}</Table.Cell>
+                    <Table.Cell>{unpaidMinutes}</Table.Cell>
+                    <Table.Cell>{s.finish ? minutesToHoursAndMinutes(totalMinutes(s) - unpaidMinutes) : ''}</Table.Cell>
                   </Table.Row>)
                 })}
               </Table.Body>
             </Table>
           }
         </Container>
-      </div>
+      </Segment>
     );
   }
 }

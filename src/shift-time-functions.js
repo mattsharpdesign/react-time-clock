@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 export const totalMinutes = shift => {
+  if (!shift.finish) return null
   return moment(shift.finish.timestamp.toDate()).diff(moment(shift.start.timestamp.toDate()), 'minutes');
 }
 

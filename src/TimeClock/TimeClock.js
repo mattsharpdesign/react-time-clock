@@ -10,6 +10,7 @@ import shortid from 'shortid';
 import localforage from 'localforage';
 import packageJson from '../../package.json';
 import MyHours from './MyHours';
+import moment from 'moment';
 
 class TimeClock extends Component {
   
@@ -106,7 +107,7 @@ class TimeClock extends Component {
     let newStatus, shiftId;
     switch (event.eventType) {
       case 'start':
-        shiftId = `${Date.now()}-${event.employee.lastName}-${event.employee.firstName}-${tempId}`
+        shiftId = `${moment().format('YYYYMMDD-HHmmss')}-${event.employee.lastName}-${event.employee.firstName}-${tempId}`
         newStatus = 1
         db.collection('accounts').doc(accountId).collection('shifts').doc(shiftId).set({
           employeeId: event.employee.id,
@@ -286,7 +287,12 @@ class TimeClock extends Component {
           <Modal open={isMyHoursOpen} size='fullscreen' closeIcon onClose={this.closeMyHours}>
             <Modal.Header><em>My Hours</em>{' '}for {selectedEmployee.firstName} {selectedEmployee.lastName}</Modal.Header>
             <Modal.Content>
-              <MyHours employee={selectedEmployee} weekStartsOn={this.props.accountSettings.weekStartsOn} accountId={this.props.user.accountId} />
+              <MyHours 
+                employee={selectedEmployee} 
+                weekStartsOn={this.props.accountSettings.weekStartsOn} 
+                defaultUnpaidMinutes={this.props.accountSettings.defaultUnpaidMinutes}
+                accountId={this.props.user.accountId} 
+              />
             </Modal.Content>
           </Modal>
           }
