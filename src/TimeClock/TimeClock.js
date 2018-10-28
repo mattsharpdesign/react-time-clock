@@ -129,7 +129,8 @@ class TimeClock extends Component {
             timestamp: event.timestamp,
             comment: comment || null,
             screenshotData: event.screenshotData || null,
-          }
+          },
+          unpaidMinutes: this.props.accountSettings.defaultUnpaidMinutes,
         }, { merge: true }).then(() => {
           this.store.removeItem(tempId, () => console.log('temp item removed'));
         }).catch(error => console.error('Error updating shift: ', error));
