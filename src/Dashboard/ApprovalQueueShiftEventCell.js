@@ -9,7 +9,7 @@ class ApprovalQueueShiftEventCell extends Component {
     const { event } = this.props; 
     return (
       <td>
-        <span title={moment(event.timestamp.toDate()).format('DD/MM/YYYY')}>{timestampToHoursAndMinutes(event.timestamp)}</span>
+        <span title={moment(event.timestamp.toDate()).format('DD/MM/YYYY HH:mm:ss')}>{timestampToHoursAndMinutes(event.timestamp)}</span>
         &nbsp;
         <Popup trigger={<Icon name={event.screenshotData ? 'camera' : 'warning sign'} />}>
           {event.screenshotData &&
