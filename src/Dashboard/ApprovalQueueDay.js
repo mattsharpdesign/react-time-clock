@@ -20,7 +20,7 @@ class ApprovalQueueDay extends Component {
       }
       // if (employees.indexOf(shift.employee.id < 0)) employees.push(shift.employee.id)
     });
-    return employees.sort((a,b) => a.firstName > b.firstName);
+    return employees.sort((a,b) => a.lastName > b.lastName ? 1 : -1);
   }
 
   toggleChecked = id => {

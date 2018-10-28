@@ -65,7 +65,7 @@ class ApprovalQueue extends Component {
           datestamps.push(datestamp);
         }
       });
-      return datestamps.sort((a,b) => a > b);
+      return datestamps.sort((a,b) => a > b ? 1 : -1);
     }
     function filterShifts(datestamp) {
       return shifts.filter(shift => moment(shift.start.timestamp.toDate()).format('YYYY-MM-DD') === datestamp);
