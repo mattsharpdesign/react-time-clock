@@ -1,8 +1,9 @@
 {
   "name": "timekeeper-react",
-  "version": "2.2.0-rc1",
+  "version": "2.2.0-rc2",
   "private": true,
   "dependencies": {
+    "faker": "^4.1.0",
     "firebase": "^5.4.2",
     "localforage": "^1.7.2",
     "mobx": "4",
