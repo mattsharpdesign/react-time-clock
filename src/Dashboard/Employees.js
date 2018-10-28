@@ -28,7 +28,7 @@ class Employees extends Component {
           <Menu.Item position='right' onClick={this.editEmployee}><Icon name='plus' /> Add Employee</Menu.Item>
         </Menu>
         <List relaxed='very'>
-          {employees.sort((a,b) => a.lastName > b.lastName).map(e => <EmployeeListItem onSelect={this.editEmployee} key={e.id} employee={e} />)}
+          {employees.sort((a,b) => a.lastName > b.lastName ? 1 : -1).map(e => <EmployeeListItem onSelect={this.editEmployee} key={e.id} employee={e} />)}
         </List>
         <Modal open={this.state.isFormOpen} closeIcon onClose={this.closeForm}>
           <Modal.Header>Employee form</Modal.Header>
