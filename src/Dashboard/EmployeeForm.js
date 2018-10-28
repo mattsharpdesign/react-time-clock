@@ -29,7 +29,8 @@ class EmployeeForm extends Component {
     const data = {
       firstName: this.state.firstName,
       lastName: this.state.lastName,
-      payrollId: this.state.payrollId
+      payrollId: this.state.payrollId,
+      status: 0
     };
     if (this.state.newProfilePic) {
       var downloadUrl = await uploadUserProfilePic(this.props.authUser.accountId, employeeId, this.state.newProfilePic);
