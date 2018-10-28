@@ -55,7 +55,7 @@ class WeeklyReport extends Component {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {Object.keys(shiftsByEmployee).sort((a,b) => shiftsByEmployee[a].employee.firstName > shiftsByEmployee[b].employee.firstName).map(employeeId => (
+          {Object.keys(shiftsByEmployee).sort((a,b) => shiftsByEmployee[a].employee.lastName > shiftsByEmployee[b].employee.lastName ? 1 : -1).map(employeeId => (
             <Table.Row key={employeeId} warning={shiftsByEmployee[employeeId].warning}>
               <Table.Cell>{shiftsByEmployee[employeeId].employee.lastName}, {shiftsByEmployee[employeeId].employee.firstName}</Table.Cell>
               {[0,1,2,3,4,5,6].map(offset => {
