@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { minutesToHoursAndMinutes } from '../date-functions';
+import { minutesToHoursAndMinutes, minutesToHoursRounded } from '../date-functions';
 import ApprovalQueueShiftEventCell from './ApprovalQueueShiftEventCell';
 import { Table, Label, Input, /* Loader,  */Checkbox } from 'semantic-ui-react';
 import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions';
@@ -60,7 +60,9 @@ class ApprovalQueueShift extends Component {
           }
           {this.props.isApprovedShifts && <span>{unpaidMinutes}</span>}
         </Table.Cell>
-        <Table.Cell>{minutesToHoursAndMinutes(totalMinutes(shift) - unpaidMinutes)}</Table.Cell>
+        <Table.Cell title={minutesToHoursAndMinutes(totalMinutes(shift) - unpaidMinutes)}>
+          {minutesToHoursRounded(totalMinutes(shift) - unpaidMinutes)}
+        </Table.Cell>
         <Table.Cell>
           {!this.props.isApprovedShifts &&
             <Input size='tiny' value={comment} onChange={this.handleChangeComment} onBlur={this.updateShift} />

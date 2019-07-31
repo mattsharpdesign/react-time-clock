@@ -1,6 +1,6 @@
 {
   "name": "timekeeper-react",
-  "version": "2.2.0-rc3",
+  "version": "2.2.1",
   "private": true,
   "dependencies": {
     "faker": "^4.1.0",

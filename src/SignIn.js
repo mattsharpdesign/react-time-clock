@@ -10,16 +10,16 @@ class SignIn extends Component {
     error: null
   }
 
-  componentDidMount() {
-    window.signInOffice = () => {
-      this.setState({ email: 'office@mattsharpdesign.com', password: 'dev 9000 mako' });
-      this.signIn(null);
-    }
-    window.signInFactory = () => {
-      this.setState({ email: 'factory@mattsharpdesign.com', password: 'dev 600 hikoi' });
-      this.signIn(null);
-    }
-  }
+//   componentDidMount() {
+//     window.signInOffice = () => {
+//       this.setState({ email: 'office@mattsharpdesign.com', password: 'dev 9000 mako' });
+//       this.signIn(null);
+//     }
+//     window.signInFactory = () => {
+//       this.setState({ email: 'factory@mattsharpdesign.com', password: 'dev 600 hikoi' });
+//       this.signIn(null);
+//     }
+//   }
 
   setEmail = e => this.setState({ email: e.target.value });
 

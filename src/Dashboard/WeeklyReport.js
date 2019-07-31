@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { Table } from 'semantic-ui-react';
 import moment from 'moment';
 import { totalMinutes, getUnpaidMinutes } from '../shift-time-functions';
-import { minutesToHoursAndMinutes } from '../date-functions';
+import { minutesToHoursAndMinutes, minutesToHoursRounded } from '../date-functions';
 import { observer } from 'mobx-react';
 
 class WeeklyReport extends Component {
   state = {  }
+  componentDidMount() {
+    console.log(this.props.employees)
+  }
   render() { 
     const { shifts, employees } = this.props;
     console.log(shifts);
@@ -14,18 +17,37 @@ class WeeklyReport extends Component {
       let shiftsByEmployee = {};
       shifts.forEach(shift => {
         const employeeId = shift.employee.id;
-        if (!shiftsByEmployee[employeeId]) shiftsByEmployee[employeeId] = { employee: shift.employee, days: {}, totalWeekdays: 0, totalWeekends: 0, totalMinutes: 0 }
+        if (!shiftsByEmployee[employeeId]) {
+          shiftsByEmployee[employeeId] = { 
+            // employee: shift.employee, 
+            employee: employees.find(e => e.id === shift.employee.id) || shift.employee,
+            days: {}, 
+            totalWeekdays: 0, 
+            totalWeekends: 0, 
+            totalMinutes: 0,
+            payableHoursWeekdays: 0,
+            payableHoursWeekends: 0,
+            payableHoursTotal: 0,
+          }
+        }
         const datestamp = moment(shift.start.timestamp.toDate()).format('YYYY-MM-DD');
-        if (!shiftsByEmployee[employeeId].days[datestamp]) shiftsByEmployee[employeeId].days[datestamp] = { shifts: [], totalMinutes: 0 };
+        if (!shiftsByEmployee[employeeId].days[datestamp]) {
+          shiftsByEmployee[employeeId].days[datestamp] = { shifts: [], totalMinutes: 0, payableHours: 0 };
+        }
         shiftsByEmployee[employeeId].days[datestamp].shifts.push(shift);
         const shiftMinutes = totalMinutes(shift) - getUnpaidMinutes(shift);
+        const payableHours = parseFloat(minutesToHoursRounded(shiftMinutes));
         shiftsByEmployee[employeeId].days[datestamp].totalMinutes += shiftMinutes;
+        shiftsByEmployee[employeeId].days[datestamp].payableHours += payableHours;
         shiftsByEmployee[employeeId].totalMinutes += shiftMinutes;
+        shiftsByEmployee[employeeId].payableHoursTotal += payableHours;
         const day = moment(shift.start.timestamp.toDate()).day();
         if (day === 0 || day === 6) {
           shiftsByEmployee[employeeId].totalWeekends += shiftMinutes;
+          shiftsByEmployee[employeeId].payableHoursWeekends += payableHours;
         } else {
           shiftsByEmployee[employeeId].totalWeekdays += shiftMinutes;
+          shiftsByEmployee[employeeId].payableHoursWeekdays += payableHours;
         }
       });
       /**
@@ -60,12 +82,13 @@ class WeeklyReport extends Component {
               <Table.Cell>{shiftsByEmployee[employeeId].employee.lastName}, {shiftsByEmployee[employeeId].employee.firstName}</Table.Cell>
               {[0,1,2,3,4,5,6].map(offset => {
                 const datestamp = moment(startDate).add(offset, 'days').format('YYYY-MM-DD');
-                const output = shiftsByEmployee[employeeId].days[datestamp] ? minutesToHoursAndMinutes(shiftsByEmployee[employeeId].days[datestamp].totalMinutes) : '-';
-                return <Table.Cell key={offset}>{output}</Table.Cell>
+                const output = shiftsByEmployee[employeeId].days[datestamp] ? minutesToHoursRounded(shiftsByEmployee[employeeId].days[datestamp].totalMinutes) : '-';
+                const title = shiftsByEmployee[employeeId].days[datestamp] ? minutesToHoursAndMinutes(shiftsByEmployee[employeeId].days[datestamp].totalMinutes) : 'NA';
+                return <Table.Cell key={offset} title={title}>{output}</Table.Cell>
               })}
-              <Table.Cell>{minutesToHoursAndMinutes(shiftsByEmployee[employeeId].totalWeekdays)}</Table.Cell>
-              <Table.Cell>{minutesToHoursAndMinutes(shiftsByEmployee[employeeId].totalWeekends)}</Table.Cell>
-              <Table.Cell>{minutesToHoursAndMinutes(shiftsByEmployee[employeeId].totalMinutes)}</Table.Cell>
+              <Table.Cell warning>{parseFloat(shiftsByEmployee[employeeId].payableHoursWeekdays).toFixed(2)}</Table.Cell>
+              <Table.Cell warning>{parseFloat(shiftsByEmployee[employeeId].payableHoursWeekends).toFixed(2)}</Table.Cell>
+              <Table.Cell positive>{parseFloat(shiftsByEmployee[employeeId].payableHoursTotal).toFixed(2)}</Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
