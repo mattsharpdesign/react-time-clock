@@ -2,15 +2,10 @@ import React, { Component } from 'react';
 import { Icon, Menu, Modal, List } from 'semantic-ui-react';
 import EmployeeListItem from './EmployeeListItem';
 import EmployeeForm from './EmployeeForm';
-// import { inject, observer } from 'mobx-react';
 
 class Employees extends Component {
   state = {
     employees: [],
-  }
-
-  componentDidMount() {
-    console.log('Employees did mount');
   }
 
   editEmployee = (employee = {}) => {
@@ -45,5 +40,4 @@ class Employees extends Component {
   }
 }
  
-// export default inject('store')(observer(Employees));
 export default Employees;

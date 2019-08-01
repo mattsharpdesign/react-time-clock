@@ -29,20 +29,13 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.attachEmployeesListener = attachEmployeesListener.bind(this);
-    // this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
-    // this.attachApprovalQueueListener = attachApprovalQueueListener.bind(this);
     this.updateShift = updateShift.bind(this);
   }
 
   componentDidMount() {
-    console.log('Dashboard did mount at', new Date());
     const { user } = this.props;
-    // const startDate = getStartOfPreviousWeek(accountSettings.weekStartsOn);
     this.loadWeeklyReport();
-    // this.setState({ weeklyReportStartDate });
     this.attachEmployeesListener(user.accountId);
-    // this.attachCurrentShiftsListener(user.accountId);
-    // this.attachApprovalQueueListener(user.accountId);
   }
 
   componentWillUnmount() {
@@ -52,15 +45,12 @@ class App extends Component {
   signOut = () => auth.signOut();
 
   changeWeeklyReportStartDate = date => {
-    console.log(date)
     if (date._isAMomentObject) date = date.toDate()
     this.loadWeeklyReport(date)
-    // this.setState({ weeklyReportStartDate: date }, this.loadWeeklyReport());
   }
 
   loadWeeklyReport = date => {
     this.setState({ loadingApprovedShifts: true });
-    // if (!date) date = this.state.weeklyReportStartDate;
     if (!date) date = getStartOfPreviousWeek(this.props.accountSettings.weekStartsOn)
     var startDate = moment(date).startOf('day').toDate();
     let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();

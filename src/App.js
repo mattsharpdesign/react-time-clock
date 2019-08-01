@@ -4,7 +4,6 @@ import { Loader } from 'semantic-ui-react';
 import { auth, db } from './firebase-services';
 import Dashboard from './Dashboard/App';
 import TimeClock from './TimeClock/TimeClock';
-// import { inject, observer } from 'mobx-react';
 
 window.signOut = () => auth.signOut();
 
@@ -18,9 +17,7 @@ class App extends Component {
   dbRef; // firebase firestore ref for this account
 
   componentDidMount() {
-    console.log('App did mount at', new Date());
     auth.onAuthStateChanged(authUser => {
-      console.log('authStateChanged')
       this.setState({ waitingForAuth: false });
       if (authUser) {
         this.setState({ authenticated: true, loadingSettings: true });
@@ -33,13 +30,11 @@ class App extends Component {
         });
       } else {
         this.setState({ authenticated: false, user: null });
-        // empty all data arrays, stop listening to database etc
       }
     });
   }
   
   signOut = () => {
-    // this.props.store.signOut();
     auth.signOut();
   }
 
@@ -56,5 +51,4 @@ class App extends Component {
   }
 }
 
-// export default inject('store')(observer(App));
 export default App;
