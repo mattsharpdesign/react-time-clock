@@ -5,8 +5,6 @@ import { auth, db } from './firebase-services';
 import Dashboard from './Dashboard/App';
 import TimeClock from './TimeClock/TimeClock';
 
-window.signOut = () => auth.signOut();
-
 class App extends Component {
 
   state = {
@@ -17,6 +15,7 @@ class App extends Component {
   dbRef; // firebase firestore ref for this account
 
   componentDidMount() {
+    // Set up watcher for authentication changes
     auth.onAuthStateChanged(authUser => {
       this.setState({ waitingForAuth: false });
       if (authUser) {
@@ -34,10 +33,6 @@ class App extends Component {
     });
   }
   
-  signOut = () => {
-    auth.signOut();
-  }
-
   render() {
     const { accountSettings, authenticated, loadingSettings, user, waitingForAuth } = this.state;
     if (waitingForAuth) return <Loader active content='Connecting to server' />

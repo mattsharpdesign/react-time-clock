@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Grid, Form, Button, Image, Icon, Message } from 'semantic-ui-react';
 import placeholder from '../profile_placeholder.png';
 import Dropzone from 'react-dropzone';
-import { auth, db } from '../firebase-services';
+import { db } from '../firebase-services';
 import shortid from 'shortid';
 import { uploadUserProfilePic } from '../storage-functions';
 
@@ -11,19 +11,20 @@ class EmployeeForm extends Component {
   state = { firstName: '', lastName: '', payrollId: '', loading: false, error: null, status: 'Loading' };
 
   componentDidMount() {
-    const { firstName, lastName, payrollId, profilePicUrl } = this.props.employee;
+    const { firstName, lastName, payrollId, profilePicUrl, isDeleted } = this.props.employee;
     this.setState({ 
       firstName: firstName || '', 
       lastName: lastName || '',
       payrollId: payrollId || '',
       profilePicUrl: profilePicUrl || placeholder,
+      isDeleted: isDeleted || false,
       newProfilePic: null
     });
   }
 
   handleChange = (e, { name, value }) => this.setState({ [name]: value })
 
-  handleSubmit = async() => {
+  handleSubmit = async () => {
     this.setState({ loading: true });
     const employeeId = this.props.employee.id || shortid.generate();
     const data = {
@@ -33,11 +34,11 @@ class EmployeeForm extends Component {
       status: 0
     };
     if (this.state.newProfilePic) {
-      var downloadUrl = await uploadUserProfilePic(this.props.authUser.accountId, employeeId, this.state.newProfilePic);
+      var downloadUrl = await uploadUserProfilePic(this.props.user.accountId, employeeId, this.state.newProfilePic);
       data.profilePicUrl = downloadUrl;
     }
     db.collection('accounts')
-      .doc(this.props.authUser.accountId)
+      .doc(this.props.user.accountId)
       .collection('employees')
       .doc(employeeId)
       .set(data, { merge: true })
@@ -52,9 +53,10 @@ class EmployeeForm extends Component {
       this.setState({ loading: true });
       const employeeId = this.props.employee.id;
       db.collection('accounts')
-        .doc(auth.currentUser.uid)
+        .doc(this.props.user.accountId)
         .collection('employees')
         .doc(employeeId)
+        // .set({ isDeleted: true }, { merge: true })
         .delete()
         .then(() => this.props.handleClose(true))
         .catch(err => {
@@ -121,7 +123,7 @@ class EmployeeForm extends Component {
         </Grid>
         <Message error hidden={!this.state.error} content={this.state.error} />
         <Button type='button' disabled={!this.state.firstName} primary onClick={this.handleSubmit}>Save</Button>
-        {/* <Button type='button' negative onClick={this.handleDelete}>Delete</Button> */}
+        <Button type='button' disabled={!this.props.employee.id} negative onClick={this.handleDelete}>Delete</Button>
       </Form>
     )
   }

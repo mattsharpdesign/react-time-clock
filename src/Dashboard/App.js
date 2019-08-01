@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Link, NavLink, Route, Switch, Redirect } from 'react-router-dom';
-import { Container, Loader, Menu, Popup, List } from 'semantic-ui-react';
+import { Container, Menu, Popup, List } from 'semantic-ui-react';
 import { auth } from '../firebase-services';
 import Employees from './Employees';
 import ApprovedShifts from './ApprovedShifts';
 import Settings from './Settings';
 import ApprovalQueue from './ApprovalQueue';
-import { attachEmployeesListener } from '../attachListeners';
+// import { attachEmployeesListener } from '../attachListeners';
 import { updateShift } from '../updateShift';
 import { db } from '../firebase-services';
 import moment from 'moment';
@@ -24,23 +24,22 @@ class App extends Component {
     approvalQueue: []
   }
 
-  listeners = [];
+  // listeners = [];
 
   constructor(props) {
     super(props);
-    this.attachEmployeesListener = attachEmployeesListener.bind(this);
+    // this.attachEmployeesListener = attachEmployeesListener.bind(this);
     this.updateShift = updateShift.bind(this);
   }
 
   componentDidMount() {
-    const { user } = this.props;
     this.loadWeeklyReport();
-    this.attachEmployeesListener(user.accountId);
+    // this.attachEmployeesListener(user.accountId);
   }
 
-  componentWillUnmount() {
-    this.listeners.forEach(unsubscribe => unsubscribe());
-  }
+  // componentWillUnmount() {
+  //   this.listeners.forEach(unsubscribe => unsubscribe());
+  // }
 
   signOut = () => auth.signOut();
 
@@ -70,7 +69,7 @@ class App extends Component {
 
   render() { 
     const { user, accountSettings } = this.props;
-    const { employees, approvedShifts, loadingEmployees, loadingApprovedShifts, weeklyReportStartDate } = this.state;
+    const { employees, approvedShifts, loadingApprovedShifts, weeklyReportStartDate } = this.state;
     return (
       <Router>
         <div className='page-container'>
@@ -90,7 +89,6 @@ class App extends Component {
             </Popup>
           </Menu>
           <Container>
-            <Loader active={loadingEmployees} content='Loading data' />
             <Switch>
               <Route path='/approval-queue' render={() => (
                 <ApprovalQueue 
@@ -110,7 +108,7 @@ class App extends Component {
                   accountSettings={accountSettings} 
                 />
               )} />
-              <Route path='/employees' render={() => <Employees user={user} employees={employees} />} />
+              <Route path='/employees' render={() => <Employees user={user} />} />
               <Route path='/settings' render={() => <Settings user={user} accountSettings={accountSettings} />} />
               <Redirect to='/employees' />
             </Switch>
