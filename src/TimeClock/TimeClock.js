@@ -215,7 +215,7 @@ class TimeClock extends Component {
       <div className='page-container'>
         <Menu inverted>
           <Menu.Item header>TimeClock v{packageJson.version}</Menu.Item>
-          {loadingEmployees && <Menu.Item>Loading...</Menu.Item>}
+          {loadingEmployees ? <Menu.Item>Loading...</Menu.Item> : <Menu.Item onClick={this.loadEmployees}>Reload</Menu.Item>}
           <Popup 
               on='click' 
               trigger={<Menu.Item position='right'>{this.props.user.email}</Menu.Item>} 
