@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Icon, Image, List, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message, Modal } from 'semantic-ui-react';
+import { Icon, Image, List, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message, Modal, Loader } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
-// import { attachEmployeesListener } from '../attachListeners';
-import './TimeClock.css'
+import './TimeClockApp.css'
 import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
 import shortid from 'shortid';
@@ -225,6 +224,7 @@ class TimeClock extends Component {
         </Menu>
         <Container style={{ paddingTop: '1em' }}>
           <Tab menu={{ pointing: true, size: 'massive' }} panes={panes} />
+          <Loader active={loadingEmployees} content='Loading employees' />
           {mountWebcam &&
             <Webcam
               audio={false}

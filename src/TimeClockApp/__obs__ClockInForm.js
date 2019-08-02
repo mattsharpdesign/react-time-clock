@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { inject, observer } from 'mobx-react';
 import placeholder from '../profile_placeholder.png';
 import { Button, Image, Input, Modal, Message/* , Divider */ } from 'semantic-ui-react';
 import Webcam from 'react-webcam';

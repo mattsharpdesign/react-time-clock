@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import SignInForm from './SignInForm';
 import { Loader } from 'semantic-ui-react';
 import { auth, db } from './firebase-services';
-import Dashboard from './Dashboard/App';
-import TimeClock from './TimeClock/TimeClock';
+import AdminApp from './AdminApp/AdminApp';
+import TimeClockApp from './TimeClockApp/TimeClockApp';
 
 class App extends Component {
 
@@ -11,8 +11,6 @@ class App extends Component {
     waitingForAuth: true,
     authenticated: false,
   };
-
-  dbRef; // firebase firestore ref for this account
 
   componentDidMount() {
     // Set up watcher for authentication changes
@@ -42,9 +40,9 @@ class App extends Component {
     if (!authenticated) return <SignInForm />
     if (loadingSettings) return <Loader active content='Loading settings' />
     if (user.role === 'admin') {
-      return <Dashboard user={user} accountSettings={accountSettings} />
+      return <AdminApp user={user} accountSettings={accountSettings} />
     } else {
-      return <TimeClock user={user} accountSettings={accountSettings} />
+      return <TimeClockApp user={user} accountSettings={accountSettings} />
     }
   }
 }
