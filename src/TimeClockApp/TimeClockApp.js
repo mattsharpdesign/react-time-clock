@@ -15,9 +15,7 @@ class TimeClock extends Component {
   
   state = {
     employees: [],
-    loadingEmployees: true,
-    // currentShifts: [],
-    loadingCurrentShifts: true,
+    loadingEmployees: false,
     isClockInFormOpen: false,
     selectedEmployee: null,
     mountWebcam: true,
@@ -26,15 +24,7 @@ class TimeClock extends Component {
     comment: ''
   }
 
-  // listeners = [];
   unmountCameraInterval = null;
-  // store;
-  
-  // constructor(props) {
-  //   super(props);
-  //   this.attachEmployeesListener = attachEmployeesListener.bind(this);
-  //   // this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
-  // }
 
   loadEmployees = () => {
     this.setState({ loadingEmployees: true });
@@ -61,22 +51,16 @@ class TimeClock extends Component {
   };
 
   componentDidMount() {
-    // console.log('TimeClock did mount at', new Date());
-    // const { user } = this.props;
     this.store = localforage.createInstance({ name: 'timeclock-temp-data-storage' })
-    // this.attachEmployeesListener(user.accountId);
-    // this.attachCurrentShiftsListener(user.accountId);
     this.loadEmployees()
   }
 
   componentWillUnmount() {
-    // this.listeners.forEach(unsubscribe => unsubscribe());
     if (this.unmountCameraInterval) this.unmountCameraInterval();
   }
 
   openClockInForm = employee => {
     if (!this.state.mountWebcam) this.setState({ mountWebcam: true });
-    console.log(employee);
     this.setState({ selectedEmployee: employee, isClockInFormOpen: true });
   }
 
@@ -189,7 +173,6 @@ class TimeClock extends Component {
     const videoConstraints = {
       facingMode: "user"
     };
-    // const sortedEmployees = this.state.employees.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
 
     const panes = [
       { menuItem: (
