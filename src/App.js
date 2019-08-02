@@ -21,10 +21,13 @@ class App extends Component {
       if (authUser) {
         this.setState({ authenticated: true, loadingSettings: true });
         db.collection('users').doc(authUser.uid).get().then(doc => {
-          this.setState({ user: doc.data() });
-          db.collection('accounts').doc(doc.data().accountId).get().then(doc => {
-            this.account = { ...doc.data(), id: doc.id };
-            this.setState({ accountSettings: doc.data(), loadingSettings: false });
+          const accountId = doc.data().accountId
+          // this.setState({ user: doc.data() });
+          let user = doc.data()
+          db.collection('accounts').doc(accountId).get().then(doc => {
+            user.account = doc.data()
+            // this.account = { ...doc.data(), id: doc.id };
+            this.setState({ user, loadingSettings: false });
           });
         });
       } else {

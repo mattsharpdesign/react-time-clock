@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Icon, Image, List, Tab, Menu, Button, Container, Grid, Header, Form, Popup, Message, Modal } from 'semantic-ui-react';
 import Webcam from 'react-webcam';
 import EmployeeCardGroup from './EmployeeCardGroup';
-import { attachEmployeesListener } from '../attachListeners';
+// import { attachEmployeesListener } from '../attachListeners';
 import './TimeClock.css'
 import placeholder from '../profile_placeholder.png';
 import { auth, db } from '../firebase-services';
@@ -27,14 +27,32 @@ class TimeClock extends Component {
     comment: ''
   }
 
-  listeners = [];
+  // listeners = [];
   unmountCameraInterval = null;
-  store;
+  // store;
   
-  constructor(props) {
-    super(props);
-    this.attachEmployeesListener = attachEmployeesListener.bind(this);
-    // this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
+  // constructor(props) {
+  //   super(props);
+  //   this.attachEmployeesListener = attachEmployeesListener.bind(this);
+  //   // this.attachCurrentShiftsListener = attachCurrentShiftsListener.bind(this);
+  // }
+
+  loadEmployees = () => {
+    this.setState({ loadingEmployees: true });
+    const accountId = this.props.user.accountId
+    let employees = []
+    db
+      .collection('accounts')
+      .doc(accountId)
+      .collection('employees')
+      .orderBy('lastName')
+      .get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          employees.push({ ...doc.data(), id: doc.id })
+        })
+        this.setState({ employees, loadingEmployees: false });
+      });
   }
 
   signOut = () => auth.signOut();
@@ -44,15 +62,16 @@ class TimeClock extends Component {
   };
 
   componentDidMount() {
-    console.log('TimeClock did mount at', new Date());
-    const { user } = this.props;
+    // console.log('TimeClock did mount at', new Date());
+    // const { user } = this.props;
     this.store = localforage.createInstance({ name: 'timeclock-temp-data-storage' })
-    this.attachEmployeesListener(user.accountId);
+    // this.attachEmployeesListener(user.accountId);
     // this.attachCurrentShiftsListener(user.accountId);
+    this.loadEmployees()
   }
 
   componentWillUnmount() {
-    this.listeners.forEach(unsubscribe => unsubscribe());
+    // this.listeners.forEach(unsubscribe => unsubscribe());
     if (this.unmountCameraInterval) this.unmountCameraInterval();
   }
 
@@ -130,7 +149,7 @@ class TimeClock extends Component {
             comment: comment || null,
             screenshotData: event.screenshotData || null,
           },
-          unpaidMinutes: this.props.accountSettings.defaultUnpaidMinutes,
+          unpaidMinutes: this.props.user.account.defaultUnpaidMinutes,
         }, { merge: true }).then(() => {
           this.store.removeItem(tempId, () => console.log('temp item removed'));
         }).catch(error => console.error('Error updating shift: ', error));
@@ -147,34 +166,48 @@ class TimeClock extends Component {
     db.collection('accounts').doc(accountId).collection('employees').doc(event.employee.id).set({
       status: newStatus,
       shiftId: shiftId
-    }, { merge: true })
+    }, { merge: true }).then(() => {
+      this.loadEmployees()
+    })
+
     this.setState({ currentEvent: null, isClockInFormOpen: false, comment: '' });
   }
 
   render() { 
-    const { cameraError, comment, currentEvent, isClockInFormOpen, mountWebcam, selectedEmployee, waitingForCamera, isMyHoursOpen } = this.state;
+    const { 
+      cameraError, 
+      comment, 
+      currentEvent, 
+      isClockInFormOpen, 
+      mountWebcam, 
+      employees, 
+      loadingEmployees, 
+      selectedEmployee, 
+      waitingForCamera, 
+      isMyHoursOpen 
+    } = this.state;
     const profilePicUrl = selectedEmployee ? selectedEmployee.profilePicUrl || placeholder : null;
     const videoConstraints = {
       facingMode: "user"
     };
-    const sortedEmployees = this.state.employees.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
+    // const sortedEmployees = this.state.employees.sort((a,b) => a.lastName > b.lastName ? 1 : -1)
 
     const panes = [
       { menuItem: (
         <Menu.Item key={1}>
           <Icon name='users' /> Everyone
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={sortedEmployees} onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={employees} onSelect={this.openClockInForm} /> },
       { menuItem: (
         <Menu.Item key={2} color='green'>
           <Icon name='sign-in' /> Here
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={sortedEmployees} filter='here' onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={employees} filter='here' onSelect={this.openClockInForm} /> },
       { menuItem: (
         <Menu.Item key={3} color='red'>
           <Icon name='sign-out' /> Not here
         </Menu.Item>
-      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={sortedEmployees} filter='not here' onSelect={this.openClockInForm} /> },
+      ), render: () => <EmployeeCardGroup visible={!isClockInFormOpen} employees={employees} filter='not here' onSelect={this.openClockInForm} /> },
     
     ];
 
@@ -182,6 +215,7 @@ class TimeClock extends Component {
       <div className='page-container'>
         <Menu inverted>
           <Menu.Item header>TimeClock v{packageJson.version}</Menu.Item>
+          {loadingEmployees && <Menu.Item>Loading...</Menu.Item>}
           <Popup 
               on='click' 
               trigger={<Menu.Item position='right'>{this.props.user.email}</Menu.Item>} 
@@ -290,8 +324,8 @@ class TimeClock extends Component {
             <Modal.Content>
               <MyHours 
                 employee={selectedEmployee} 
-                weekStartsOn={this.props.accountSettings.weekStartsOn} 
-                defaultUnpaidMinutes={this.props.accountSettings.defaultUnpaidMinutes}
+                weekStartsOn={this.props.user.account.weekStartsOn} 
+                defaultUnpaidMinutes={this.props.user.account.defaultUnpaidMinutes}
                 accountId={this.props.user.accountId} 
               />
             </Modal.Content>

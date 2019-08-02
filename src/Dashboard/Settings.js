@@ -7,7 +7,8 @@ import packageJson from '../../package.json';
 class Settings extends Component {
   state = {  }
   render() { 
-    const { user, accountSettings } = this.props;
+    const { user } = this.props;
+    const accountSettings = user.account;
     return (
       <Segment>
         <Header>Settings</Header>
