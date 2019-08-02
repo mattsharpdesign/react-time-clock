@@ -23,7 +23,13 @@ class ApprovedShifts extends Component {
 
   loadShifts = date => {
     this.setState({ loading: true });
-    if (!date) date = getStartOfPreviousWeek(this.props.user.account.weekStartsOn)
+    if (!date) {
+      if (this.state.startDate) {
+        date = this.state.startDate
+      } else {
+        date = getStartOfPreviousWeek(this.props.user.account.weekStartsOn)
+      }
+    }
     var startDate = moment(date).startOf('day').toDate();
     let endDate = moment(startDate).add(6, 'days').endOf('day').toDate();
     console.log('Loading shifts starting at', startDate, 'ending at', endDate);
