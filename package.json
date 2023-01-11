@@ -1,5 +1,5 @@
 {
-  "name": "timekeeper-react",
+  "name": "react-time-clock",
   "version": "2.3.0",
   "private": true,
   "dependencies": {

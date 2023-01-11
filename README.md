@@ -1,4 +1,4 @@
-# timeclock-react
+# react-time-clock
 
 A time clock web app built with React, Semantic UI, and Firebase.
 
